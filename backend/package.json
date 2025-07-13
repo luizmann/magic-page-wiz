@@ -1,0 +1,33 @@
+{
+  "name": "magic-page-wiz-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Magic Page Wiz - Create pages and sales pages",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "shopify",
+    "dropshipping",
+    "openai",
+    "pages",
+    "sales"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "axios": "^1.5.0",
+    "openai": "^4.0.0",
+    "@shopify/shopify-api": "^8.0.0",
+    "helmet": "^7.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
