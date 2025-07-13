@@ -1,0 +1,39 @@
+services:
+  # Backend API service
+  - type: web
+    name: magic-page-wiz-api
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+    
+  # Frontend web service (builds and serves React app)
+  - type: web
+    name: magic-page-wiz-web
+    env: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/build
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://magic-page-wiz-api.onrender.com$1
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+# Alternative: Single service setup (uncomment if preferred)
+# services:
+#   - type: web
+#     name: magic-page-wiz
+#     env: node
+#     buildCommand: npm install && cd client && npm install && npm run build
+#     startCommand: npm start
+#     healthCheckPath: /api/health
+#     envVars:
+#       - key: NODE_ENV
+#         value: production
