@@ -1,0 +1,33 @@
+{
+  "name": "magic-page-wiz",
+  "version": "1.0.0",
+  "description": "Create pages and sales pages with magic - A powerful tool for building landing and sales pages",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js",
+    "build": "echo 'Build process completed - static files ready'",
+    "test": "echo 'Tests will be implemented in future versions'"
+  },
+  "keywords": [
+    "pages",
+    "sales-pages",
+    "landing-pages",
+    "magic",
+    "web-development"
+  ],
+  "author": "luizmann",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
