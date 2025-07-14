@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .magic-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+        .description {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .features {
+            text-align: left;
+            margin: 30px 0;
+        }
+        .feature {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        .api-info {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="magic-icon">🎩✨</div>
+        <h1><%= title %></h1>
+        <p class="description"><%= description %></p>
+        
+        <div class="features">
+            <h3>🚀 Features Coming Soon:</h3>
+            <div class="feature">📄 Dynamic Page Builder</div>
+            <div class="feature">💰 Sales Page Templates</div>
+            <div class="feature">🎨 Custom Styling Options</div>
+            <div class="feature">📊 Analytics Integration</div>
+            <div class="feature">🔧 Easy Configuration</div>
+        </div>
+
+        <div class="api-info">
+            <h3>🔌 API Endpoints:</h3>
+            <p><strong>Health Check:</strong> GET /api/health</p>
+            <p><strong>Create Page:</strong> POST /api/pages</p>
+        </div>
+    </div>
+</body>
+</html>
