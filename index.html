@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Page Wiz - Criador de Páginas</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Language Selection -->
+        <header class="header">
+            <h1>Magic Page Wiz</h1>
+            <div id="language-selector"></div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Left Sidebar with Tools -->
+            <aside class="sidebar">
+                <div class="tool-section">
+                    <h3 data-i18n="templates">Templates</h3>
+                    <div id="template-selector"></div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3 data-i18n="upload">Upload de Arquivos</h3>
+                    <div id="drag-drop-area"></div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3 data-i18n="images">Imagens</h3>
+                    <div id="image-upload"></div>
+                </div>
+            </aside>
+
+            <!-- Editor Area -->
+            <section class="editor-area">
+                <div class="editor-toolbar">
+                    <div id="rich-text-editor-toolbar"></div>
+                </div>
+                <div class="editor-content">
+                    <div id="rich-text-editor"></div>
+                </div>
+            </section>
+
+            <!-- Preview Area -->
+            <section class="preview-area">
+                <div class="preview-header">
+                    <h3 data-i18n="preview">Pré-visualização</h3>
+                    <button id="publish-btn" class="publish-btn" data-i18n="publish">Publicar</button>
+                </div>
+                <div id="dynamic-preview"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Load component scripts -->
+    <script src="src/components/languageSelector.js"></script>
+    <script src="src/components/dragDrop.js"></script>
+    <script src="src/components/dynamicPreview.js"></script>
+    <script src="src/components/richTextEditor.js"></script>
+    <script src="src/components/templateSelector.js"></script>
+    <script src="src/components/imageUpload.js"></script>
+    <script src="src/components/autoPublish.js"></script>
+    <script src="src/scripts/main.js"></script>
+</body>
+</html>
