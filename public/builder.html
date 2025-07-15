@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Page Wiz - Page Builder</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/builder.css">
+</head>
+<body>
+    <div class="builder-container">
+        <!-- Header -->
+        <header class="builder-header">
+            <div class="header-left">
+                <h1>🪄 Magic Page Wiz</h1>
+                <span class="page-title">Untitled Page</span>
+            </div>
+            <div class="header-center">
+                <nav class="builder-nav">
+                    <button class="nav-btn active" data-section="builder">
+                        <span>🎨</span> Builder
+                    </button>
+                    <button class="nav-btn" data-section="ai">
+                        <span>🤖</span> AI Generator
+                    </button>
+                    <button class="nav-btn" data-section="templates">
+                        <span>📋</span> Templates
+                    </button>
+                    <button class="nav-btn" data-section="import">
+                        <span>📥</span> Import
+                    </button>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="btn-secondary" id="preview-btn">👀 Preview</button>
+                <button class="btn-primary" id="save-btn">💾 Save</button>
+                <button class="btn-secondary" id="publish-btn">🚀 Publish</button>
+            </div>
+        </header>
+
+        <!-- Main Builder Interface -->
+        <div class="builder-main">
+            <!-- Elements Panel -->
+            <div class="elements-panel">
+                <h3>Elements</h3>
+                <div class="element-categories">
+                    <div class="category" data-category="basic">
+                        <h4>📝 Basic</h4>
+                        <div class="elements-grid">
+                            <div class="element-item" draggable="true" data-element="text">
+                                <span>📄</span>
+                                <div>Text</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="heading">
+                                <span>📰</span>
+                                <div>Heading</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="image">
+                                <span>🖼️</span>
+                                <div>Image</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="video">
+                                <span>🎥</span>
+                                <div>Video</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="button">
+                                <span>🔘</span>
+                                <div>Button</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="divider">
+                                <span>➖</span>
+                                <div>Divider</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="category" data-category="forms">
+                        <h4>📋 Forms</h4>
+                        <div class="elements-grid">
+                            <div class="element-item" draggable="true" data-element="form">
+                                <span>📝</span>
+                                <div>Form</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="input">
+                                <span>📥</span>
+                                <div>Input</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="textarea">
+                                <span>📄</span>
+                                <div>Textarea</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="checkbox">
+                                <span>☑️</span>
+                                <div>Checkbox</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category" data-category="marketing">
+                        <h4>💰 Marketing</h4>
+                        <div class="elements-grid">
+                            <div class="element-item" draggable="true" data-element="pricing">
+                                <span>💲</span>
+                                <div>Pricing</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="testimonial">
+                                <span>💬</span>
+                                <div>Testimonial</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="countdown">
+                                <span>⏰</span>
+                                <div>Countdown</div>
+                            </div>
+                            <div class="element-item" draggable="true" data-element="social">
+                                <span>📱</span>
+                                <div>Social</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="canvas-area">
+                <div class="canvas-toolbar">
+                    <button class="tool-btn" id="desktop-view" title="Desktop View">💻</button>
+                    <button class="tool-btn" id="tablet-view" title="Tablet View">📱</button>
+                    <button class="tool-btn" id="mobile-view" title="Mobile View">📲</button>
+                    <div class="toolbar-divider"></div>
+                    <button class="tool-btn" id="undo" title="Undo">↶</button>
+                    <button class="tool-btn" id="redo" title="Redo">↷</button>
+                </div>
+                <div class="canvas" id="pageCanvas">
+                    <div class="canvas-placeholder">
+                        <div class="placeholder-content">
+                            <h3>🎨 Start Building Your Page</h3>
+                            <p>Drag elements from the left panel to create your sales page</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Properties Panel -->
+            <div class="properties-panel">
+                <h3>Properties</h3>
+                <div id="propertiesContent">
+                    <div class="no-selection">
+                        <p>Select an element to edit its properties</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Generator Panel (Hidden by default) -->
+        <div class="ai-panel hidden" id="aiPanel">
+            <div class="ai-content">
+                <h2>🤖 AI Page Generator</h2>
+                <p>Describe your sales page and let AI create it for you</p>
+                
+                <div class="ai-form">
+                    <textarea id="aiPrompt" placeholder="Describe your product, target audience, and goals...
+Example: Create a sales page for a fitness course targeting busy professionals who want to lose weight in 30 days. Include testimonials, pricing, and urgency elements."></textarea>
+                    
+                    <div class="ai-options">
+                        <label>
+                            <input type="checkbox" id="includeTestimonials"> Include testimonials
+                        </label>
+                        <label>
+                            <input type="checkbox" id="includePricing"> Include pricing section
+                        </label>
+                        <label>
+                            <input type="checkbox" id="includeCountdown"> Include countdown timer
+                        </label>
+                    </div>
+                    
+                    <button class="btn-primary" id="generatePage">✨ Generate Page</button>
+                </div>
+                
+                <div class="ai-result hidden" id="aiResult">
+                    <h3>Generated Page Structure:</h3>
+                    <div id="aiOutput"></div>
+                    <button class="btn-primary" id="applyGenerated">Apply to Canvas</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Templates Panel (Hidden by default) -->
+        <div class="templates-panel hidden" id="templatesPanel">
+            <div class="templates-content">
+                <h2>📋 Templates</h2>
+                <div class="templates-tabs">
+                    <button class="tab-btn active" data-tab="library">Template Library</button>
+                    <button class="tab-btn" data-tab="saved">My Templates</button>
+                </div>
+                
+                <div class="template-grid" id="templateGrid">
+                    <!-- Templates will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Panel (Hidden by default) -->
+        <div class="import-panel hidden" id="importPanel">
+            <div class="import-content">
+                <h2>📥 Import Products</h2>
+                <div class="import-options">
+                    <div class="import-option">
+                        <h3>🛒 CJ Dropshipping</h3>
+                        <input type="url" id="cjUrl" placeholder="Paste CJ Dropshipping product URL...">
+                        <button class="btn-primary" id="importCJ">Import from CJ</button>
+                    </div>
+                    
+                    <div class="import-option">
+                        <h3>🛍️ Shopify Store</h3>
+                        <input type="url" id="shopifyUrl" placeholder="Paste Shopify product URL...">
+                        <button class="btn-primary" id="importShopify">Import from Shopify</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/builder.js"></script>
+    <script src="/js/drag-drop.js"></script>
+    <script src="/js/ai-generator.js"></script>
+    <script src="/js/templates.js"></script>
+    <script src="/js/import.js"></script>
+</body>
+</html>

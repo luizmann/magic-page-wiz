@@ -11,7 +11,7 @@ function initializeApp() {
     const startBtn = document.querySelector('.btn-primary');
     if (startBtn) {
         startBtn.addEventListener('click', function() {
-            alert('🚀 Welcome to Magic Page Wiz! The page builder will be available soon.');
+            window.location.href = '/builder';
         });
     }
     
