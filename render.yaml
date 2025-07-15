@@ -2,6 +2,7 @@ services:
   - type: web
     name: magic-page-wiz
     env: node
+    rootDir: .
     buildCommand: npm install
     startCommand: npm start
     envVars:
