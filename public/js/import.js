@@ -6,7 +6,6 @@ class ImportManager {
 
     init() {
         this.setupEventHandlers();
-        this.setupAPIEndpoints();
     }
 
     setupEventHandlers() {
@@ -19,14 +18,6 @@ class ImportManager {
         if (importShopifyBtn) {
             importShopifyBtn.addEventListener('click', () => this.importFromShopify());
         }
-    }
-
-    setupAPIEndpoints() {
-        // These would be actual API endpoints in production
-        this.endpoints = {
-            cj: '/api/import/cj',
-            shopify: '/api/import/shopify'
-        };
     }
 
     async importFromCJ() {
@@ -49,15 +40,37 @@ class ImportManager {
         importBtn.disabled = true;
 
         try {
-            // For demo purposes, we'll simulate the import
-            const productData = await this.simulateCJImport(url);
+            console.log('🔍 Starting real CJ Dropshipping import for:', url);
+            
+            // Make real API call to our backend
+            const response = await fetch('/api/import/cj', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to import from CJ Dropshipping');
+            }
+
+            const productData = await response.json();
+            
+            // Show warning if there were extraction issues
+            if (productData.error) {
+                console.warn('⚠️ Import completed with warnings:', productData.error);
+                alert('⚠️ Product imported with some limitations. Some details could not be extracted and may need manual editing.');
+            }
+            
             this.createPageFromProductData(productData, 'cj');
             
             alert('✅ Product imported successfully from CJ Dropshipping!');
             
         } catch (error) {
-            console.error('CJ Import error:', error);
-            alert('❌ Error importing product. Please check the URL and try again.');
+            console.error('❌ CJ Import error:', error);
+            alert(`❌ Error importing product: ${error.message}`);
         } finally {
             importBtn.textContent = originalText;
             importBtn.disabled = false;
@@ -84,15 +97,37 @@ class ImportManager {
         importBtn.disabled = true;
 
         try {
-            // For demo purposes, we'll simulate the import
-            const productData = await this.simulateShopifyImport(url);
+            console.log('🔍 Starting real Shopify import for:', url);
+            
+            // Make real API call to our backend
+            const response = await fetch('/api/import/shopify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to import from Shopify');
+            }
+
+            const productData = await response.json();
+            
+            // Show warning if there were extraction issues
+            if (productData.error) {
+                console.warn('⚠️ Import completed with warnings:', productData.error);
+                alert('⚠️ Product imported with some limitations. Some details could not be extracted and may need manual editing.');
+            }
+            
             this.createPageFromProductData(productData, 'shopify');
             
             alert('✅ Product imported successfully from Shopify!');
             
         } catch (error) {
-            console.error('Shopify Import error:', error);
-            alert('❌ Error importing product. Please check the URL and try again.');
+            console.error('❌ Shopify Import error:', error);
+            alert(`❌ Error importing product: ${error.message}`);
         } finally {
             importBtn.textContent = originalText;
             importBtn.disabled = false;
@@ -110,120 +145,6 @@ class ImportManager {
         return url.toLowerCase().includes('.myshopify.com') || 
                url.toLowerCase().includes('/products/') ||
                (url.includes('shopify') && url.includes('/products/'));
-    }
-
-    async simulateCJImport(url) {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Extract product ID from URL for simulation
-        const productId = this.extractProductIdFromUrl(url);
-
-        // Return mock product data
-        return {
-            id: productId,
-            name: 'Premium Wireless Bluetooth Headphones',
-            description: 'Experience crystal-clear audio with our premium wireless headphones. Perfect for music lovers, gamers, and professionals.',
-            price: '$79.99',
-            originalPrice: '$129.99',
-            images: [
-                'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1545127398-14699f92334b?w=600&h=400&fit=crop'
-            ],
-            features: [
-                'Bluetooth 5.0 connectivity',
-                '30-hour battery life',
-                'Active noise cancellation',
-                'Comfortable over-ear design',
-                'Built-in microphone for calls',
-                'Quick charge: 10 min = 3 hours playback'
-            ],
-            specifications: {
-                'Brand': 'TechSound Pro',
-                'Model': 'TS-WH100',
-                'Color': 'Matte Black',
-                'Weight': '250g',
-                'Connectivity': 'Bluetooth 5.0, 3.5mm Jack',
-                'Battery': '30 hours wireless, 40 hours wired'
-            },
-            reviews: [
-                {
-                    author: 'Mike Chen',
-                    rating: 5,
-                    text: 'Amazing sound quality and comfort. Best headphones I\'ve ever owned!'
-                },
-                {
-                    author: 'Sarah Johnson',
-                    rating: 5,
-                    text: 'Perfect for work calls and music. The noise cancellation is incredible.'
-                }
-            ],
-            source: 'cj'
-        };
-    }
-
-    async simulateShopifyImport(url) {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Extract product info from URL for simulation
-        const productSlug = this.extractProductSlugFromUrl(url);
-
-        // Return mock product data
-        return {
-            id: productSlug,
-            name: 'Organic Coffee Blend - Premium Roast',
-            description: 'Sourced from the finest coffee farms around the world, our premium organic blend delivers a rich, full-bodied flavor that coffee enthusiasts love.',
-            price: '$24.99',
-            originalPrice: '$34.99',
-            images: [
-                'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=600&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&h=400&fit=crop'
-            ],
-            features: [
-                '100% organic certified beans',
-                'Medium-dark roast profile',
-                'Notes of chocolate and caramel',
-                'Ethically sourced and fair trade',
-                'Freshly roasted to order',
-                'Available in whole bean or ground'
-            ],
-            specifications: {
-                'Origin': 'Colombia, Ethiopia, Brazil',
-                'Roast Level': 'Medium-Dark',
-                'Process': 'Washed',
-                'Flavor Notes': 'Chocolate, Caramel, Nutty',
-                'Caffeine Level': 'Medium',
-                'Package Size': '12 oz (340g)'
-            },
-            reviews: [
-                {
-                    author: 'Coffee Lover',
-                    rating: 5,
-                    text: 'The best coffee I\'ve tasted! Perfect balance of flavor and aroma.'
-                },
-                {
-                    author: 'Morning Person',
-                    rating: 5,
-                    text: 'This coffee makes my mornings perfect. Will definitely order again!'
-                }
-            ],
-            source: 'shopify'
-        };
-    }
-
-    extractProductIdFromUrl(url) {
-        // Extract product ID from CJ URL
-        const match = url.match(/product[\/\-](\d+)/i);
-        return match ? match[1] : 'demo-product-' + Date.now();
-    }
-
-    extractProductSlugFromUrl(url) {
-        // Extract product slug from Shopify URL
-        const match = url.match(/products\/([^\/\?]+)/i);
-        return match ? match[1] : 'demo-product-' + Date.now();
     }
 
     createPageFromProductData(productData, source) {
@@ -571,39 +492,6 @@ class ImportManager {
         const original = parseFloat(originalPrice.replace(/[^0-9.]/g, ''));
         const sale = parseFloat(salePrice.replace(/[^0-9.]/g, ''));
         return Math.round(((original - sale) / original) * 100);
-    }
-
-    // In production, these would be actual API calls
-    async callCJAPI(url) {
-        const response = await fetch(this.endpoints.cj, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ url })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to import from CJ Dropshipping');
-        }
-
-        return await response.json();
-    }
-
-    async callShopifyAPI(url) {
-        const response = await fetch(this.endpoints.shopify, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ url })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to import from Shopify');
-        }
-
-        return await response.json();
     }
 }
 
