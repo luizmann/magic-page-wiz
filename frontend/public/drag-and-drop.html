@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Page Wiz - Drag and Drop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            padding: 20px;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px dashed #dee2e6;
+        }
+
+        .sidebar h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .drag-item {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .drag-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .drag-item.header-block {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .drag-item.text-block {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        }
+
+        .drag-item.image-block {
+            background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+        }
+
+        .drag-item.button-block {
+            background: linear-gradient(135deg, #5f27cd 0%, #341f97 100%);
+        }
+
+        .canvas {
+            background: white;
+            border: 3px dashed #dee2e6;
+            border-radius: 10px;
+            min-height: 500px;
+            padding: 20px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .canvas.drag-over {
+            border-color: #007bff;
+            background-color: #f8f9ff;
+        }
+
+        .canvas h3 {
+            color: #6c757d;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .dropped-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dropped-item:hover {
+            border-color: #007bff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .dropped-item .delete-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropped-item:hover .delete-btn {
+            display: flex;
+        }
+
+        .dropped-item .content {
+            padding: 10px;
+        }
+
+        .dropped-item.header-content {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .dropped-item.text-content {
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .dropped-item.image-content {
+            border-left: 4px solid #feca57;
+        }
+
+        .dropped-item.button-content {
+            border-left: 4px solid #5f27cd;
+        }
+
+        .placeholder {
+            color: #6c757d;
+            text-align: center;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .actions {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn.secondary {
+            background: #6c757d;
+        }
+
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧙‍♂️ Magic Page Wiz</h1>
+            <p>Arraste e solte blocos para criar sua página mágica</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <h3>📦 Blocos Disponíveis</h3>
+                <div class="drag-item header-block" draggable="true" data-type="header">
+                    📋 Cabeçalho
+                </div>
+                <div class="drag-item text-block" draggable="true" data-type="text">
+                    📝 Texto
+                </div>
+                <div class="drag-item image-block" draggable="true" data-type="image">
+                    🖼️ Imagem
+                </div>
+                <div class="drag-item button-block" draggable="true" data-type="button">
+                    🔘 Botão
+                </div>
+            </div>
+            
+            <div class="canvas" id="canvas">
+                <h3>🎨 Área de Construção da Página</h3>
+                <div class="placeholder">
+                    Arraste os blocos aqui para construir sua página
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="btn" onclick="generateHTML()">🚀 Gerar HTML</button>
+            <button class="btn secondary" onclick="clearCanvas()">🗑️ Limpar Tudo</button>
+            <button class="btn secondary" onclick="showDocumentation()">📚 Documentação</button>
+        </div>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        let draggedElement = null;
+        let dropCounter = 0;
+
+        // Elementos do DOM
+        const canvas = document.getElementById('canvas');
+        const dragItems = document.querySelectorAll('.drag-item');
+
+        // Inicializar eventos de drag and drop
+        function initializeDragAndDrop() {
+            // Eventos para os itens arrastáveis
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+
+            // Eventos para a área de drop
+            canvas.addEventListener('dragover', handleDragOver);
+            canvas.addEventListener('dragenter', handleDragEnter);
+            canvas.addEventListener('dragleave', handleDragLeave);
+            canvas.addEventListener('drop', handleDrop);
+        }
+
+        // Manipuladores de eventos de drag
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'copy';
+            e.dataTransfer.setData('text/html', e.target.outerHTML);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            canvas.classList.add('drag-over');
+            dropCounter++;
+        }
+
+        function handleDragLeave(e) {
+            dropCounter--;
+            if (dropCounter <= 0) {
+                canvas.classList.remove('drag-over');
+                dropCounter = 0;
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            canvas.classList.remove('drag-over');
+            dropCounter = 0;
+
+            if (!draggedElement) return;
+
+            // Remover placeholder se existir
+            const placeholder = canvas.querySelector('.placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            // Criar novo elemento baseado no tipo
+            const blockType = draggedElement.dataset.type;
+            const newElement = createDroppedElement(blockType);
+            
+            canvas.appendChild(newElement);
+            
+            // Adicionar animação de entrada
+            newElement.style.opacity = '0';
+            newElement.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                newElement.style.transition = 'all 0.3s ease';
+                newElement.style.opacity = '1';
+                newElement.style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        // Criar elemento solto na área de construção
+        function createDroppedElement(type) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'dropped-item ' + type + '-content';
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '×';
+            deleteBtn.onclick = () => removeElement(wrapper);
+            
+            const content = document.createElement('div');
+            content.className = 'content';
+            
+            // Definir conteúdo baseado no tipo
+            switch(type) {
+                case 'header':
+                    content.innerHTML = '<h2 contenteditable="true" style="color: #ff6b6b; margin-bottom: 10px;">Título Principal</h2>' +
+                        '<p style="color: #6c757d;">Clique para editar este cabeçalho</p>';
+                    break;
+                case 'text':
+                    content.innerHTML = '<p contenteditable="true" style="line-height: 1.6; color: #495057;">' +
+                        'Este é um parágrafo de texto. Clique para editar o conteúdo e personalizar sua mensagem.</p>';
+                    break;
+                case 'image':
+                    content.innerHTML = '<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">' +
+                        '<span style="font-size: 3rem;">🖼️</span>' +
+                        '<p style="margin-top: 10px; color: #6c757d;">Área para Imagem</p>' +
+                        '<input type="file" accept="image/*" style="margin-top: 10px;" onchange="handleImageUpload(this)">' +
+                        '</div>';
+                    break;
+                case 'button':
+                    content.innerHTML = '<div style="text-align: center;">' +
+                        '<button contenteditable="true" style="background: linear-gradient(135deg, #5f27cd 0%, #341f97 100%); color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 1rem; min-width: 120px;">' +
+                        'Clique Aqui</button></div>';
+                    break;
+            }
+            
+            wrapper.appendChild(deleteBtn);
+            wrapper.appendChild(content);
+            
+            return wrapper;
+        }
+
+        // Remover elemento
+        function removeElement(element) {
+            element.style.transition = 'all 0.3s ease';
+            element.style.opacity = '0';
+            element.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                element.remove();
+                
+                // Adicionar placeholder se não houver elementos
+                if (canvas.children.length <= 1) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'placeholder';
+                    placeholder.textContent = 'Arraste os blocos aqui para construir sua página';
+                    canvas.appendChild(placeholder);
+                }
+            }, 300);
+        }
+
+        // Manipular upload de imagem
+        function handleImageUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgContainer = input.parentElement;
+                    imgContainer.innerHTML = '<img src="' + e.target.result + '" style="max-width: 100%; height: auto; border-radius: 8px;" alt="Imagem carregada">' +
+                        '<p style="margin-top: 10px; color: #6c757d; font-size: 0.9rem;">Imagem carregada com sucesso</p>';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Gerar HTML da página
+        function generateHTML() {
+            const elements = canvas.querySelectorAll('.dropped-item');
+            if (elements.length === 0) {
+                alert('Adicione alguns blocos antes de gerar o HTML!');
+                return;
+            }
+
+            let html = '<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Página Criada com Magic Page Wiz</title>\n    <style>\n        body {\n            font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif;\n            line-height: 1.6;\n            margin: 0;\n            padding: 20px;\n            max-width: 800px;\n            margin: 0 auto;\n        }\n        .block {\n            margin: 20px 0;\n            padding: 20px;\n            border-radius: 8px;\n        }\n        .header-block {\n            border-left: 4px solid #ff6b6b;\n        }\n        .text-block {\n            border-left: 4px solid #4ecdc4;\n        }\n        .image-block {\n            border-left: 4px solid #feca57;\n            text-align: center;\n        }\n        .button-block {\n            border-left: 4px solid #5f27cd;\n            text-align: center;\n        }\n    </style>\n</head>\n<body>\n';
+
+            elements.forEach(element => {
+                const content = element.querySelector('.content').innerHTML;
+                const type = element.className.split(' ')[1].replace('-content', '');
+                html += '    <div class="block ' + type + '-block">\n        ' + content + '\n    </div>\n';
+            });
+
+            html += '</body>\n</html>';
+
+            // Mostrar HTML em uma nova janela
+            const newWindow = window.open('', '_blank');
+            const escapedHtml = html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            newWindow.document.write('<!DOCTYPE html><html><head><title>HTML Gerado - Magic Page Wiz</title>' +
+                '<style>body { font-family: monospace; padding: 20px; background: #f8f9fa; } pre { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto; } .actions { margin-bottom: 20px; } button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-right: 10px; } button:hover { background: #0056b3; }</style>' +
+                '</head><body><h1>🎉 HTML Gerado com Sucesso!</h1>' +
+                '<div class="actions"><button onclick="copyToClipboard()">📋 Copiar HTML</button>' +
+                '<button onclick="downloadHTML()">💾 Baixar HTML</button>' +
+                '<button onclick="window.close()">❌ Fechar</button></div>' +
+                '<pre id="htmlCode">' + escapedHtml + '</pre>' +
+                '<script>function copyToClipboard() { navigator.clipboard.writeText(\'' + html.replace(/'/g, "\\'") + '\').then(() => { alert(\'HTML copiado para a área de transferência!\'); }); } function downloadHTML() { const text = \'' + html.replace(/'/g, "\\'") + '\'; const blob = new Blob([text], { type: \'text/html\' }); const url = window.URL.createObjectURL(blob); const a = document.createElement(\'a\'); a.href = url; a.download = \'magic-page.html\'; a.click(); window.URL.revokeObjectURL(url); }</script></body></html>');
+        }
+
+        // Limpar canvas
+        function clearCanvas() {
+            if (confirm('Tem certeza que deseja limpar toda a área de construção?')) {
+                const canvasHTML = '<h3>🎨 Área de Construção da Página</h3>' +
+                    '<div class="placeholder">Arraste os blocos aqui para construir sua página</div>';
+                canvas.innerHTML = canvasHTML;
+            }
+        }
+
+        // Mostrar documentação
+        function showDocumentation() {
+            const docWindow = window.open('', '_blank');
+            docWindow.document.write('<!DOCTYPE html><html><head><title>Documentação - Magic Page Wiz</title>' +
+                '<style>body { font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; } h1 { color: #667eea; } h2 { color: #495057; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; } .feature { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #667eea; } code { background: #e9ecef; padding: 2px 6px; border-radius: 4px; } .tip { background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 15px; margin: 15px 0; }</style>' +
+                '</head><body><h1>📚 Magic Page Wiz - Documentação</h1>' +
+                '<h2>🎯 O que é o Magic Page Wiz?</h2>' +
+                '<p>O Magic Page Wiz é uma ferramenta visual para criar páginas web usando drag and drop. Com ele, você pode:</p>' +
+                '<ul><li>Arrastar blocos pré-definidos para construir páginas</li><li>Editar conteúdo diretamente na interface</li><li>Gerar HTML limpo e responsivo</li><li>Fazer download das páginas criadas</li></ul>' +
+                '<h2>🔧 Como Usar</h2>' +
+                '<div class="feature"><h3>1. Arrastar Blocos</h3><p>Na barra lateral, clique e arraste qualquer bloco para a área de construção:</p>' +
+                '<ul><li><strong>📋 Cabeçalho:</strong> Títulos e subtítulos</li><li><strong>📝 Texto:</strong> Parágrafos e conteúdo textual</li><li><strong>🖼️ Imagem:</strong> Upload e exibição de imagens</li><li><strong>🔘 Botão:</strong> Botões interativos</li></ul></div>' +
+                '<div class="feature"><h3>2. Editar Conteúdo</h3><p>Após soltar um bloco, clique no conteúdo para editá-lo diretamente. Todos os textos são editáveis!</p></div>' +
+                '<div class="feature"><h3>3. Gerenciar Blocos</h3><p>Passe o mouse sobre um bloco para ver o botão de exclusão (×) no canto superior direito.</p></div>' +
+                '<div class="feature"><h3>4. Gerar HTML</h3><p>Clique em "🚀 Gerar HTML" para ver o código final e fazer download da página.</p></div>' +
+                '<h2>💡 Dicas</h2>' +
+                '<div class="tip"><strong>🎨 Personalização:</strong> Todos os elementos são editáveis. Clique em qualquer texto para modificá-lo.</div>' +
+                '<div class="tip"><strong>🖼️ Imagens:</strong> Use o botão de upload nos blocos de imagem para adicionar suas próprias fotos.</div>' +
+                '<div class="tip"><strong>📱 Responsivo:</strong> O HTML gerado é responsivo e funciona em dispositivos móveis.</div>' +
+                '<div class="tip"><strong>🔄 Ordem:</strong> A ordem dos blocos na área de construção será mantida no HTML final.</div>' +
+                '<h2>⚡ Recursos Técnicos</h2>' +
+                '<ul><li>JavaScript puro (sem dependências)</li><li>HTML5 Drag and Drop API</li><li>CSS3 com animações e gradientes</li><li>Design responsivo</li><li>Edição inline com contenteditable</li><li>Upload de arquivos com FileReader API</li></ul>' +
+                '<h2>🚀 Próximos Passos</h2>' +
+                '<p>Esta ferramenta pode ser expandida com:</p>' +
+                '<ul><li>Mais tipos de blocos (vídeo, formulários, etc.)</li><li>Temas e estilos personalizáveis</li><li>Salvamento de projetos</li><li>Integração com APIs</li><li>Exportação para diferentes formatos</li></ul>' +
+                '<div style="text-align: center; margin-top: 40px;"><button onclick="window.close()" style="background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 1rem;">✨ Voltar ao Magic Page Wiz</button></div>' +
+                '</body></html>');
+        }
+
+        // Inicializar a aplicação
+        document.addEventListener('DOMContentLoaded', initializeDragAndDrop);
+    </script>
+</body>
+</html>
