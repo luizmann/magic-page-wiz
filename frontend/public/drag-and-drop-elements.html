@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Page Wiz - Drag and Drop Elements</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .color-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .color-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .color-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-control label {
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        .color-control input[type="color"] {
+            width: 50px;
+            height: 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .elements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .element-wrapper {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: move;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .element-wrapper:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .element-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Root CSS Variables for customizable colors */
+        :root {
+            --primary-color: #007cba;
+            --secondary-color: #f0f0f1;
+            --text-color: #333;
+            --background-color: #ffffff;
+            --accent-color: #ff6b6b;
+            --success-color: #4ecdc4;
+            --warning-color: #ffe66d;
+            --danger-color: #ff6b6b;
+        }
+
+        /* Basic Elements Styles */
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .heading {
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .text-content {
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 150px;
+            background: var(--secondary-color);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .divider {
+            height: 2px;
+            background: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .spacer {
+            height: 50px;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 5px,
+                rgba(0,0,0,0.1) 5px,
+                rgba(0,0,0,0.1) 10px
+            );
+        }
+
+        /* Interactive Elements Styles */
+        .accordion {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .accordion-header {
+            padding: 15px;
+            background: var(--secondary-color);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .accordion-content {
+            padding: 15px;
+            display: none;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        .tabs {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .tab-headers {
+            display: flex;
+            background: var(--secondary-color);
+        }
+
+        .tab-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-right: 1px solid #ddd;
+            background: transparent;
+            border: none;
+            font-weight: bold;
+        }
+
+        .tab-header.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Dynamic Elements Styles */
+        .counter {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .counter-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .counter-label {
+            font-size: 16px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .timer {
+            text-align: center;
+            padding: 20px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .timer-display {
+            font-size: 36px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .progress-bar {
+            background: var(--secondary-color);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 2s ease;
+            border-radius: 10px;
+        }
+
+        .testimonial {
+            padding: 20px;
+            background: var(--secondary-color);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .testimonial-quote {
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-author {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .price-table {
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .price {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .price-features {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .price-features li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Gallery Styles */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            background: var(--secondary-color);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Advanced Elements */
+        .chart {
+            height: 200px;
+            background: var(--secondary-color);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .flip-box {
+            width: 100%;
+            height: 200px;
+            perspective: 1000px;
+        }
+
+        .flip-box-inner {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flip-box:hover .flip-box-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-box-front,
+        .flip-box-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        .flip-box-back {
+            background: var(--accent-color);
+            transform: rotateY(180deg);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Animation Classes */
+        .animate-fade-in {
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 1s ease-out;
+        }
+
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .elements-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .color-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Drag and Drop Styles */
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--primary-color);
+            background: rgba(0, 124, 186, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Magic Page Wiz - Drag & Drop Elements</h1>
+            <p>50 elementos inspirados no Elementor Pro para criar páginas incríveis</p>
+        </div>
+
+        <!-- Color Customization Panel -->
+        <div class="color-panel">
+            <h2>🎨 Painel de Personalização de Cores</h2>
+            <div class="color-controls">
+                <div class="color-control">
+                    <label for="primary-color">Cor Primária:</label>
+                    <input type="color" id="primary-color" value="#007cba">
+                </div>
+                <div class="color-control">
+                    <label for="secondary-color">Cor Secundária:</label>
+                    <input type="color" id="secondary-color" value="#f0f0f1">
+                </div>
+                <div class="color-control">
+                    <label for="text-color">Cor do Texto:</label>
+                    <input type="color" id="text-color" value="#333333">
+                </div>
+                <div class="color-control">
+                    <label for="background-color">Cor de Fundo:</label>
+                    <input type="color" id="background-color" value="#ffffff">
+                </div>
+                <div class="color-control">
+                    <label for="accent-color">Cor de Destaque:</label>
+                    <input type="color" id="accent-color" value="#ff6b6b">
+                </div>
+                <div class="color-control">
+                    <label for="success-color">Cor de Sucesso:</label>
+                    <input type="color" id="success-color" value="#4ecdc4">
+                </div>
+            </div>
+            <button class="btn" onclick="resetColors()">Resetar Cores</button>
+        </div>
+
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="drop-zone">
+            Arraste os elementos aqui para testar o drag & drop
+        </div>
+
+        <!-- Elements Grid -->
+        <div class="elements-grid">
+            <!-- Basic Elements (1-10) -->
+            <div class="element-wrapper" draggable="true" data-element="button">
+                <div class="element-title">1. Botão</div>
+                <button class="btn">Clique Aqui</button>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="heading">
+                <div class="element-title">2. Título/Texto</div>
+                <h2 class="heading">Título Principal</h2>
+                <p class="text-content">Texto descritivo do elemento.</p>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="icon">
+                <div class="element-title">3. Ícone</div>
+                <div class="icon">★</div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="image">
+                <div class="element-title">4. Imagem</div>
+                <div class="image-placeholder">📷 Imagem</div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="divider">
+                <div class="element-title">5. Divisor</div>
+                <div class="divider"></div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="spacer">
+                <div class="element-title">6. Espaçador</div>
+                <div class="spacer"></div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="video">
+                <div class="element-title">7. Vídeo</div>
+                <div class="image-placeholder">🎥 Player de Vídeo</div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="map">
+                <div class="element-title">8. Mapa</div>
+                <div class="image-placeholder">🗺️ Google Maps</div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="html">
+                <div class="element-title">9. Código HTML</div>
+                <div style="background: #f4f4f4; padding: 10px; border-radius: 5px; font-family: monospace;">
+                    &lt;div&gt;HTML customizado&lt;/div&gt;
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="shortcode">
+                <div class="element-title">10. Shortcode</div>
+                <div style="background: #e8f4f8; padding: 10px; border-radius: 5px; text-align: center;">
+                    [shortcode id="example"]
+                </div>
+            </div>
+
+            <!-- Interactive Elements (11-25) -->
+            <div class="element-wrapper" draggable="true" data-element="accordion">
+                <div class="element-title">11. Acordeão</div>
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">Item 1</div>
+                        <div class="accordion-content">Conteúdo do item 1</div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">Item 2</div>
+                        <div class="accordion-content">Conteúdo do item 2</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="tabs">
+                <div class="element-title">12. Abas</div>
+                <div class="tabs">
+                    <div class="tab-headers">
+                        <button class="tab-header active" onclick="showTab(this, 'tab1')">Aba 1</button>
+                        <button class="tab-header" onclick="showTab(this, 'tab2')">Aba 2</button>
+                    </div>
+                    <div class="tab-content active" id="tab1">Conteúdo da Aba 1</div>
+                    <div class="tab-content" id="tab2">Conteúdo da Aba 2</div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="toggle">
+                <div class="element-title">13. Toggle</div>
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="toggle-switch" onchange="handleToggle(this)">
+                    <span>Ativar recurso</span>
+                </label>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="modal">
+                <div class="element-title">14. Modal/Popup</div>
+                <button class="btn" onclick="openModal('modal1')">Abrir Modal</button>
+                <div class="modal" id="modal1">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal('modal1')">&times;</span>
+                        <h3>Modal de Exemplo</h3>
+                        <p>Este é um exemplo de modal popup.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="dropdown">
+                <div class="element-title">15. Dropdown</div>
+                <select class="form-group input" onchange="handleDropdown(this)">
+                    <option value="">Selecione uma opção</option>
+                    <option value="opt1">Opção 1</option>
+                    <option value="opt2">Opção 2</option>
+                    <option value="opt3">Opção 3</option>
+                </select>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="slider">
+                <div class="element-title">16. Slider/Carrossel</div>
+                <div style="position: relative; overflow: hidden; border-radius: 5px;">
+                    <div id="slider-container" style="display: flex; transition: transform 0.3s ease;">
+                        <div style="min-width: 100%; background: var(--primary-color); color: white; padding: 40px; text-align: center;">Slide 1</div>
+                        <div style="min-width: 100%; background: var(--accent-color); color: white; padding: 40px; text-align: center;">Slide 2</div>
+                        <div style="min-width: 100%; background: var(--success-color); color: white; padding: 40px; text-align: center;">Slide 3</div>
+                    </div>
+                    <button onclick="nextSlide()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">▶</button>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="gallery">
+                <div class="element-title">17. Galeria</div>
+                <div class="gallery">
+                    <div class="gallery-item" onclick="openLightbox('img1')">🖼️</div>
+                    <div class="gallery-item" onclick="openLightbox('img2')">🖼️</div>
+                    <div class="gallery-item" onclick="openLightbox('img3')">🖼️</div>
+                    <div class="gallery-item" onclick="openLightbox('img4')">🖼️</div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="lightbox">
+                <div class="element-title">18. Lightbox</div>
+                <div class="image-placeholder" onclick="openLightbox('lightbox-demo')" style="cursor: pointer;">
+                    🔍 Clique para ampliar
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="search">
+                <div class="element-title">19. Caixa de Busca</div>
+                <div class="form-group">
+                    <input type="search" placeholder="Digite sua busca..." onkeyup="handleSearch(this)">
+                    <button class="btn" style="margin-top: 10px;">🔍 Buscar</button>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="login">
+                <div class="element-title">20. Formulário de Login</div>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha:</label>
+                        <input type="password" required>
+                    </div>
+                    <button type="submit" class="btn">Entrar</button>
+                </form>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="contact">
+                <div class="element-title">21. Formulário de Contato</div>
+                <form onsubmit="handleContact(event)">
+                    <div class="form-group">
+                        <label>Nome:</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mensagem:</label>
+                        <textarea rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Enviar</button>
+                </form>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="subscribe">
+                <div class="element-title">22. Formulário de Inscrição</div>
+                <form onsubmit="handleSubscribe(event)">
+                    <div class="form-group">
+                        <label>Email para newsletter:</label>
+                        <input type="email" placeholder="seu@email.com" required>
+                    </div>
+                    <button type="submit" class="btn">Inscrever-se</button>
+                </form>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="menu">
+                <div class="element-title">23. Menu/Navegação</div>
+                <nav style="background: var(--secondary-color); padding: 10px; border-radius: 5px;">
+                    <a href="#" style="margin-right: 15px; text-decoration: none; color: var(--text-color);">Home</a>
+                    <a href="#" style="margin-right: 15px; text-decoration: none; color: var(--text-color);">Sobre</a>
+                    <a href="#" style="margin-right: 15px; text-decoration: none; color: var(--text-color);">Serviços</a>
+                    <a href="#" style="text-decoration: none; color: var(--text-color);">Contato</a>
+                </nav>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="breadcrumbs">
+                <div class="element-title">24. Breadcrumbs</div>
+                <nav style="font-size: 14px; color: #666;">
+                    <a href="#" style="color: var(--primary-color); text-decoration: none;">Home</a> &gt; 
+                    <a href="#" style="color: var(--primary-color); text-decoration: none;">Categoria</a> &gt; 
+                    <span>Página Atual</span>
+                </nav>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="social-icons">
+                <div class="element-title">25. Ícones Sociais</div>
+                <div class="social-icons">
+                    <a href="#" class="social-icon">f</a>
+                    <a href="#" class="social-icon">t</a>
+                    <a href="#" class="social-icon">i</a>
+                    <a href="#" class="social-icon">y</a>
+                </div>
+            </div>
+
+            <!-- Dynamic Elements (26-40) -->
+            <div class="element-wrapper" draggable="true" data-element="counter">
+                <div class="element-title">26. Contador</div>
+                <div class="counter">
+                    <div class="counter-number" id="counter-1">0</div>
+                    <div class="counter-label">Projetos Concluídos</div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="timer">
+                <div class="element-title">27. Timer/Countdown</div>
+                <div class="timer">
+                    <div class="timer-display" id="countdown">10:00</div>
+                    <div style="margin-top: 10px;">
+                        <button class="btn" onclick="startTimer()" style="background: white; color: var(--primary-color);">Iniciar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="progress">
+                <div class="element-title">28. Barra de Progresso</div>
+                <div style="margin-bottom: 10px;">Progresso: <span id="progress-text">0%</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <button class="btn" onclick="updateProgress()" style="margin-top: 10px;">Atualizar</button>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="testimonial">
+                <div class="element-title">29. Depoimentos</div>
+                <div class="testimonial">
+                    <div class="testimonial-quote">"Este produto mudou completamente minha forma de trabalhar!"</div>
+                    <div class="testimonial-author">- João Silva, CEO</div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="price-table">
+                <div class="element-title">30. Tabela de Preços</div>
+                <div class="price-table">
+                    <h3>Plano Premium</h3>
+                    <div class="price">R$ 99<small>/mês</small></div>
+                    <ul class="price-features">
+                        <li>✓ Recursos ilimitados</li>
+                        <li>✓ Suporte 24/7</li>
+                        <li>✓ Backup automático</li>
+                    </ul>
+                    <button class="btn">Escolher Plano</button>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="cta">
+                <div class="element-title">31. Call to Action</div>
+                <div style="background: var(--accent-color); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                    <h3>Pronto para começar?</h3>
+                    <p>Junte-se a milhares de usuários satisfeitos!</p>
+                    <button class="btn" style="background: white; color: var(--accent-color); margin-top: 10px;">Começar Agora</button>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="alert">
+                <div class="element-title">32. Alert/Aviso</div>
+                <div style="background: var(--warning-color); padding: 15px; border-radius: 5px; border-left: 4px solid #ff9900;">
+                    <strong>⚠️ Atenção:</strong> Esta é uma mensagem importante!
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="blockquote">
+                <div class="element-title">33. Citação</div>
+                <blockquote style="border-left: 4px solid var(--primary-color); padding-left: 20px; margin: 0; font-style: italic; color: #666;">
+                    "A inovação distingue um líder de um seguidor."
+                    <footer style="margin-top: 10px; font-size: 14px;">- Steve Jobs</footer>
+                </blockquote>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="table">
+                <div class="element-title">34. Tabela</div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--secondary-color);">
+                            <th style="padding: 10px; border: 1px solid #ddd;">Produto</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Preço</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Item A</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">R$ 50</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Item B</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">R$ 75</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="list">
+                <div class="element-title">35. Lista</div>
+                <ul style="padding-left: 20px;">
+                    <li>Primeiro item da lista</li>
+                    <li>Segundo item da lista</li>
+                    <li>Terceiro item da lista</li>
+                </ul>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="timeline">
+                <div class="element-title">36. Timeline</div>
+                <div style="border-left: 3px solid var(--primary-color); padding-left: 20px;">
+                    <div style="margin-bottom: 20px; position: relative;">
+                        <div style="position: absolute; left: -28px; top: 0; width: 12px; height: 12px; background: var(--primary-color); border-radius: 50%;"></div>
+                        <strong>2024</strong> - Lançamento do produto
+                    </div>
+                    <div style="margin-bottom: 20px; position: relative;">
+                        <div style="position: absolute; left: -28px; top: 0; width: 12px; height: 12px; background: var(--primary-color); border-radius: 50%;"></div>
+                        <strong>2023</strong> - Início do desenvolvimento
+                    </div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="steps">
+                <div class="element-title">37. Passos/Processo</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="text-align: center; flex: 1;">
+                        <div style="width: 30px; height: 30px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">1</div>
+                        <small>Passo 1</small>
+                    </div>
+                    <div style="flex: 0.2; height: 2px; background: var(--primary-color);"></div>
+                    <div style="text-align: center; flex: 1;">
+                        <div style="width: 30px; height: 30px; background: var(--secondary-color); border: 2px solid var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">2</div>
+                        <small>Passo 2</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="faq">
+                <div class="element-title">38. FAQ</div>
+                <div style="border: 1px solid #ddd; border-radius: 5px;">
+                    <div style="padding: 15px; border-bottom: 1px solid #ddd; cursor: pointer;" onclick="toggleFaq(this)">
+                        <strong>❓ Como funciona o produto?</strong>
+                        <div style="display: none; margin-top: 10px; color: #666;">É muito simples de usar e intuitivo.</div>
+                    </div>
+                    <div style="padding: 15px; cursor: pointer;" onclick="toggleFaq(this)">
+                        <strong>❓ Qual o preço?</strong>
+                        <div style="display: none; margin-top: 10px; color: #666;">Temos vários planos disponíveis.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="reviews">
+                <div class="element-title">39. Avaliações/Rating</div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #ffd700; margin-bottom: 10px;">★★★★★</div>
+                    <div><strong>4.8/5</strong> (127 avaliações)</div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="badge">
+                <div class="element-title">40. Badge/Etiqueta</div>
+                <div style="display: inline-block; background: var(--accent-color); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                    NOVO
+                </div>
+            </div>
+
+            <!-- Advanced Elements (41-50) -->
+            <div class="element-wrapper" draggable="true" data-element="chart">
+                <div class="element-title">41. Gráfico</div>
+                <div class="chart">
+                    <canvas id="chart-canvas" width="250" height="150"></canvas>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="calendar">
+                <div class="element-title">42. Calendário</div>
+                <div style="background: var(--secondary-color); padding: 15px; border-radius: 5px;">
+                    <div style="text-align: center; font-weight: bold; margin-bottom: 10px;">📅 Janeiro 2024</div>
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 12px;">
+                        <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+                        <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
+                        <div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div>
+                        <div style="background: var(--primary-color); color: white; border-radius: 3px;">15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="audio">
+                <div class="element-title">43. Player de Áudio</div>
+                <div style="background: var(--secondary-color); padding: 15px; border-radius: 5px; text-align: center;">
+                    <div>🎵 Música.mp3</div>
+                    <div style="margin: 10px 0; background: #ddd; height: 4px; border-radius: 2px;">
+                        <div style="background: var(--primary-color); height: 100%; width: 30%; border-radius: 2px;"></div>
+                    </div>
+                    <button class="btn" onclick="toggleAudio()">▶️ Play</button>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="download">
+                <div class="element-title">44. Download de Arquivo</div>
+                <div style="border: 2px dashed var(--primary-color); padding: 20px; text-align: center; border-radius: 5px;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">📁</div>
+                    <div><strong>documento.pdf</strong></div>
+                    <div style="color: #666; font-size: 14px;">2.5 MB</div>
+                    <button class="btn" style="margin-top: 10px;">⬇️ Download</button>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="share">
+                <div class="element-title">45. Botões de Compartilhamento</div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn" style="background: #3b5998;">Facebook</button>
+                    <button class="btn" style="background: #1da1f2;">Twitter</button>
+                    <button class="btn" style="background: #25d366;">WhatsApp</button>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="weather">
+                <div class="element-title">46. Widget do Tempo</div>
+                <div style="background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px;">☀️</div>
+                    <div style="font-size: 18px; font-weight: bold;">25°C</div>
+                    <div>São Paulo, SP</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Ensolarado</div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="clock">
+                <div class="element-title">47. Relógio</div>
+                <div style="text-align: center; padding: 20px;">
+                    <div id="clock-display" style="font-size: 24px; font-weight: bold; color: var(--primary-color); font-family: 'Courier New', monospace;">12:00:00</div>
+                    <div style="font-size: 14px; color: #666; margin-top: 5px;">Horário atual</div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="qr">
+                <div class="element-title">48. QR Code</div>
+                <div style="text-align: center;">
+                    <div style="width: 100px; height: 100px; background: black; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">QR CODE</div>
+                    <div style="font-size: 12px; color: #666;">Escaneie o código</div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="flip-box">
+                <div class="element-title">49. Flip Box</div>
+                <div class="flip-box">
+                    <div class="flip-box-inner">
+                        <div class="flip-box-front">
+                            <h3>Frente</h3>
+                            <p>Passe o mouse</p>
+                        </div>
+                        <div class="flip-box-back">
+                            <h3>Verso</h3>
+                            <p>Conteúdo oculto!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="element-wrapper" draggable="true" data-element="animated-text">
+                <div class="element-title">50. Texto Animado</div>
+                <div style="text-align: center; padding: 20px;">
+                    <div class="animate-bounce" style="font-size: 24px; font-weight: bold; color: var(--primary-color);">
+                        Texto Animado!
+                    </div>
+                    <div class="animate-fade-in" style="margin-top: 10px; color: #666;">
+                        Com efeitos visuais
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSlide = 0;
+        let sliderInterval;
+        let timerInterval;
+        let timeLeft = 600; // 10 minutes in seconds
+        let currentProgress = 0;
+
+        // Color customization functions
+        function updateCSSVariable(property, value) {
+            document.documentElement.style.setProperty(property, value);
+        }
+
+        function resetColors() {
+            updateCSSVariable('--primary-color', '#007cba');
+            updateCSSVariable('--secondary-color', '#f0f0f1');
+            updateCSSVariable('--text-color', '#333333');
+            updateCSSVariable('--background-color', '#ffffff');
+            updateCSSVariable('--accent-color', '#ff6b6b');
+            updateCSSVariable('--success-color', '#4ecdc4');
+            
+            // Update color inputs
+            document.getElementById('primary-color').value = '#007cba';
+            document.getElementById('secondary-color').value = '#f0f0f1';
+            document.getElementById('text-color').value = '#333333';
+            document.getElementById('background-color').value = '#ffffff';
+            document.getElementById('accent-color').value = '#ff6b6b';
+            document.getElementById('success-color').value = '#4ecdc4';
+        }
+
+        // Set up color change listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const colorInputs = document.querySelectorAll('input[type="color"]');
+            colorInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const property = '--' + this.id;
+                    updateCSSVariable(property, this.value);
+                });
+            });
+
+            // Initialize clock
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // Initialize counter animation
+            animateCounter();
+
+            // Initialize chart
+            drawChart();
+
+            // Initialize drag and drop
+            initializeDragAndDrop();
+        });
+
+        // Interactive Elements Functions
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+        }
+
+        function showTab(button, tabId) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab-header').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding content
+            button.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function handleToggle(checkbox) {
+            console.log('Toggle switched:', checkbox.checked);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function handleDropdown(select) {
+            console.log('Selected option:', select.value);
+        }
+
+        function nextSlide() {
+            const container = document.getElementById('slider-container');
+            currentSlide = (currentSlide + 1) % 3;
+            container.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+
+        function openLightbox(imageId) {
+            alert('Lightbox would open for: ' + imageId);
+        }
+
+        function handleSearch(input) {
+            console.log('Searching for:', input.value);
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            alert('Login form submitted!');
+        }
+
+        function handleContact(event) {
+            event.preventDefault();
+            alert('Contact form submitted!');
+        }
+
+        function handleSubscribe(event) {
+            event.preventDefault();
+            alert('Newsletter subscription submitted!');
+        }
+
+        // Dynamic Elements Functions
+        function animateCounter() {
+            const counter = document.getElementById('counter-1');
+            let count = 0;
+            const target = 150;
+            const increment = target / 100;
+            
+            const timer = setInterval(() => {
+                count += increment;
+                if (count >= target) {
+                    count = target;
+                    clearInterval(timer);
+                }
+                counter.textContent = Math.floor(count);
+            }, 20);
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('countdown').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Timer finished!');
+                }
+            }, 1000);
+        }
+
+        function updateProgress() {
+            currentProgress += 25;
+            if (currentProgress > 100) currentProgress = 0;
+            
+            document.getElementById('progress-fill').style.width = currentProgress + '%';
+            document.getElementById('progress-text').textContent = currentProgress + '%';
+        }
+
+        function toggleFaq(element) {
+            const answer = element.querySelector('div');
+            answer.style.display = answer.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const clockElement = document.getElementById('clock-display');
+            if (clockElement) {
+                clockElement.textContent = timeString;
+            }
+        }
+
+        function toggleAudio() {
+            const button = event.target;
+            if (button.textContent.includes('▶️')) {
+                button.textContent = '⏸️ Pause';
+            } else {
+                button.textContent = '▶️ Play';
+            }
+        }
+
+        function drawChart() {
+            const canvas = document.getElementById('chart-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Draw simple bar chart
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+            ctx.fillRect(50, 100, 30, 50);
+            ctx.fillRect(100, 80, 30, 70);
+            ctx.fillRect(150, 60, 30, 90);
+            ctx.fillRect(200, 90, 30, 60);
+            
+            // Draw labels
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.fillText('Jan', 55, 165);
+            ctx.fillText('Feb', 105, 165);
+            ctx.fillText('Mar', 155, 165);
+            ctx.fillText('Apr', 205, 165);
+        }
+
+        // Drag and Drop Functions
+        function initializeDragAndDrop() {
+            const elements = document.querySelectorAll('.element-wrapper');
+            const dropZone = document.getElementById('drop-zone');
+
+            elements.forEach(element => {
+                element.addEventListener('dragstart', handleDragStart);
+                element.addEventListener('dragend', handleDragEnd);
+            });
+
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('drop', handleDrop);
+        }
+
+        function handleDragStart(e) {
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.dataset.element);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const elementType = e.dataTransfer.getData('text/plain');
+            const dropZone = document.getElementById('drop-zone');
+            dropZone.innerHTML = `✅ Elemento "${elementType}" foi solto aqui!<br><small>Funcionalidade de drag & drop funcionando!</small>`;
+            
+            setTimeout(() => {
+                dropZone.innerHTML = 'Arraste os elementos aqui para testar o drag & drop';
+            }, 3000);
+        }
+
+        // Auto-start slider
+        setInterval(nextSlide, 3000);
+    </script>
+</body>
+</html>
