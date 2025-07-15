@@ -48,7 +48,7 @@ class PageBuilder {
         document.querySelector(`[data-section="${section}"]`).classList.add('active');
 
         // Hide all panels
-        document.querySelectorAll('.ai-panel, .templates-panel, .import-panel').forEach(panel => {
+        document.querySelectorAll('.ai-panel, .import-panel').forEach(panel => {
             panel.classList.add('hidden');
         });
 
@@ -56,7 +56,6 @@ class PageBuilder {
         if (section !== 'builder') {
             const panelMap = {
                 'ai': 'aiPanel',
-                'templates': 'templatesPanel',
                 'import': 'importPanel'
             };
             const panel = document.getElementById(panelMap[section]);
