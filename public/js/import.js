@@ -242,50 +242,76 @@ class ImportManager {
         // Clear current page
         window.pageBuilder.pageData.elements = [];
 
-        // Create page structure based on product data
-        this.addProductHeroSection(productData);
-        this.addProductGallery(productData);
-        this.addProductDescription(productData);
-        this.addProductFeatures(productData);
-        this.addProductSpecifications(productData);
-        this.addProductReviews(productData);
-        this.addProductPricing(productData);
-        this.addProductCTA(productData);
+        // Get current copy level for enhanced content
+        const copyLevel = window.pageBuilder.pageData.settings.copyLevel;
+
+        // Create page structure based on product data with copy level enhancements
+        this.addProductHeroSection(productData, copyLevel);
+        this.addProductGallery(productData, copyLevel);
+        this.addProductDescription(productData, copyLevel);
+        this.addProductFeatures(productData, copyLevel);
+        this.addProductSpecifications(productData, copyLevel);
+        this.addProductReviews(productData, copyLevel);
+        this.addProductPricing(productData, copyLevel);
+        this.addProductCTA(productData, copyLevel);
 
         // Update page title
         window.pageBuilder.pageData.settings.title = productData.name;
         document.querySelector('.page-title').textContent = productData.name;
 
+        // Trigger auto-save for real-time updates
+        window.pageBuilder.triggerAutoSave();
+
         // Switch back to builder view
         window.pageBuilder.switchSection('builder');
+        
+        // Show success notification
+        window.pageBuilder.showNotification(`✅ Product imported successfully from ${source}!`, 'success');
     }
 
-    addProductHeroSection(productData) {
+    addProductHeroSection(productData, copyLevel) {
+        // Enhanced hero heading based on copy level
+        let heroTitle = productData.name;
+        if (copyLevel === 'advanced') {
+            heroTitle = `EXCLUSIVE: ${productData.name} - Limited Time Only!`;
+        } else if (copyLevel === 'intermediate') {
+            heroTitle = `Discover ${productData.name}`;
+        }
+
         // Hero heading
         window.pageBuilder.addElement('heading', {
-            content: { text: productData.name, level: 'h1' },
+            content: { text: heroTitle, level: 'h1' },
             styles: { 
-                fontSize: '42px', 
+                fontSize: copyLevel === 'advanced' ? '48px' : '42px', 
                 textAlign: 'center', 
-                color: '#2d3748', 
+                color: copyLevel === 'advanced' ? '#e53e3e' : '#2d3748', 
                 marginBottom: '20px',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                textShadow: copyLevel === 'advanced' ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none'
             }
         });
 
-        // Hero subheading
+        // Enhanced hero subheading
+        let heroDescription = productData.description;
+        if (copyLevel === 'advanced') {
+            heroDescription = `⚡ BREAKTHROUGH: ${productData.description} Don't miss this exclusive opportunity!`;
+        } else if (copyLevel === 'intermediate') {
+            heroDescription = `✨ ${productData.description} Join thousands of satisfied customers.`;
+        }
+
         window.pageBuilder.addElement('text', {
-            content: { text: productData.description },
+            content: { text: heroDescription },
             styles: { 
                 fontSize: '20px', 
                 textAlign: 'center', 
                 color: '#4a5568', 
                 marginBottom: '30px',
-                lineHeight: '1.6'
+                lineHeight: '1.6',
+                fontWeight: copyLevel === 'advanced' ? '600' : 'normal'
             }
         });
 
-        // Hero image
+        // Hero image with enhanced styling
         window.pageBuilder.addElement('image', {
             content: { 
                 src: productData.images[0],
@@ -296,7 +322,9 @@ class ImportManager {
                 maxWidth: '600px', 
                 margin: '0 auto 40px auto', 
                 display: 'block',
-                borderRadius: '8px'
+                borderRadius: copyLevel === 'advanced' ? '15px' : '8px',
+                boxShadow: copyLevel === 'advanced' ? '0 8px 25px rgba(0,0,0,0.2)' : '0 4px 12px rgba(0,0,0,0.1)',
+                border: copyLevel === 'advanced' ? '3px solid #e53e3e' : 'none'
             }
         });
     }

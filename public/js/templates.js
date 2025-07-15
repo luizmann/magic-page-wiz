@@ -364,8 +364,12 @@ class TemplateManager {
         // Clear current page
         window.pageBuilder.pageData.elements = [];
         
+        // Apply copy level enhancements to template elements
+        const currentCopyLevel = window.pageBuilder.pageData.settings.copyLevel;
+        const enhancedElements = this.enhanceTemplateElementsWithCopyLevel(template.elements, currentCopyLevel);
+        
         // Apply template elements
-        template.elements.forEach(elementData => {
+        enhancedElements.forEach(elementData => {
             window.pageBuilder.addElement(elementData.type, {
                 content: elementData.content,
                 styles: elementData.styles
@@ -376,10 +380,66 @@ class TemplateManager {
         window.pageBuilder.pageData.settings.title = template.name;
         document.querySelector('.page-title').textContent = template.name;
 
+        // Trigger auto-save
+        window.pageBuilder.triggerAutoSave();
+
         // Switch back to builder view
         window.pageBuilder.switchSection('builder');
         
-        alert(`✨ Template "${template.name}" applied successfully!`);
+        // Show success notification
+        window.pageBuilder.showNotification(`✨ Template "${template.name}" applied successfully!`, 'success');
+    }
+
+    enhanceTemplateElementsWithCopyLevel(elements, copyLevel) {
+        return elements.map(element => {
+            const enhanced = { ...element };
+            
+            // Enhance content based on copy level
+            if (copyLevel === 'advanced' && element.type === 'text') {
+                enhanced.content.text = this.enhanceTextForAdvancedCopy(element.content.text);
+            } else if (copyLevel === 'simple' && element.type === 'text') {
+                enhanced.content.text = this.simplifyTextCopy(element.content.text);
+            }
+            
+            if (copyLevel === 'advanced' && element.type === 'heading') {
+                enhanced.content.text = this.enhanceHeadingForAdvancedCopy(element.content.text);
+            }
+            
+            if (copyLevel === 'advanced' && element.type === 'button') {
+                enhanced.content.text = this.enhanceButtonForAdvancedCopy(element.content.text);
+            }
+            
+            return enhanced;
+        });
+    }
+
+    enhanceTextForAdvancedCopy(text) {
+        const enhancements = [
+            'Discover the proven system that',
+            'Join thousands who have already',
+            'Transform your results with this exclusive',
+            'Experience the breakthrough method that'
+        ];
+        return enhancements[Math.floor(Math.random() * enhancements.length)] + ' ' + text.toLowerCase();
+    }
+
+    enhanceHeadingForAdvancedCopy(heading) {
+        const prefixes = ['EXCLUSIVE:', 'BREAKTHROUGH:', 'PROVEN:', 'REVOLUTIONARY:'];
+        return prefixes[Math.floor(Math.random() * prefixes.length)] + ' ' + heading;
+    }
+
+    enhanceButtonForAdvancedCopy(buttonText) {
+        const enhancements = [
+            'Get Instant Access Now',
+            'Claim Your Exclusive Spot',
+            'Start Your Transformation Today',
+            'Unlock Your Success Now'
+        ];
+        return enhancements[Math.floor(Math.random() * enhancements.length)];
+    }
+
+    simplifyTextCopy(text) {
+        return text.split('.')[0] + '.'; // Take first sentence only
     }
 
     addSaveTemplateButton() {
