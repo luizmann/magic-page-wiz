@@ -19,14 +19,12 @@ class I18nManager {
                 // Navigation
                 'builder': 'Builder',
                 'ai_generator': 'AI Generator',
-                'templates': 'Templates',
                 'import': 'Import',
                 
                 // Common actions
                 'save': 'Save',
                 'preview': 'Preview',
                 'publish': 'Publish',
-                'save_as_template': 'Save as Template',
                 
                 // Elements
                 'elements': 'Elements',
@@ -67,11 +65,6 @@ class I18nManager {
                 'generated_structure': 'Generated Page Structure:',
                 'apply_to_canvas': 'Apply to Canvas',
                 
-                // Templates
-                'template_library': 'Template Library',
-                'my_templates': 'My Templates',
-                'use_template': 'Use Template',
-                
                 // Import
                 'import_products': 'Import Products',
                 'cj_dropshipping': 'CJ Dropshipping',
@@ -81,9 +74,7 @@ class I18nManager {
                 
                 // Messages
                 'page_saved': 'Page saved successfully!',
-                'template_saved': 'Template saved successfully!',
                 'ai_page_applied': 'AI-generated page applied successfully!',
-                'template_applied': 'Template applied successfully!',
                 'product_imported': 'Product imported successfully!',
                 'page_published': 'Page published successfully!'
             },
@@ -92,14 +83,12 @@ class I18nManager {
                 // Navigation
                 'builder': 'Construtor',
                 'ai_generator': 'Gerador IA',
-                'templates': 'Modelos',
                 'import': 'Importar',
                 
                 // Common actions
                 'save': 'Salvar',
                 'preview': 'Visualizar',
                 'publish': 'Publicar',
-                'save_as_template': 'Salvar como Modelo',
                 
                 // Elements
                 'elements': 'Elementos',
@@ -140,11 +129,6 @@ class I18nManager {
                 'generated_structure': 'Estrutura da Página Gerada:',
                 'apply_to_canvas': 'Aplicar à Tela',
                 
-                // Templates
-                'template_library': 'Biblioteca de Modelos',
-                'my_templates': 'Meus Modelos',
-                'use_template': 'Usar Modelo',
-                
                 // Import
                 'import_products': 'Importar Produtos',
                 'cj_dropshipping': 'CJ Dropshipping',
@@ -154,9 +138,7 @@ class I18nManager {
                 
                 // Messages
                 'page_saved': 'Página salva com sucesso!',
-                'template_saved': 'Modelo salvo com sucesso!',
                 'ai_page_applied': 'Página gerada por IA aplicada com sucesso!',
-                'template_applied': 'Modelo aplicado com sucesso!',
                 'product_imported': 'Produto importado com sucesso!',
                 'page_published': 'Página publicada com sucesso!'
             },
@@ -165,14 +147,12 @@ class I18nManager {
                 // Navigation
                 'builder': 'Constructor',
                 'ai_generator': 'Generador IA',
-                'templates': 'Plantillas',
                 'import': 'Importar',
                 
                 // Common actions
                 'save': 'Guardar',
                 'preview': 'Vista Previa',
                 'publish': 'Publicar',
-                'save_as_template': 'Guardar como Plantilla',
                 
                 // Elements
                 'elements': 'Elementos',
@@ -213,11 +193,6 @@ class I18nManager {
                 'generated_structure': 'Estructura de Página Generada:',
                 'apply_to_canvas': 'Aplicar al Lienzo',
                 
-                // Templates
-                'template_library': 'Biblioteca de Plantillas',
-                'my_templates': 'Mis Plantillas',
-                'use_template': 'Usar Plantilla',
-                
                 // Import
                 'import_products': 'Importar Productos',
                 'cj_dropshipping': 'CJ Dropshipping',
@@ -227,9 +202,7 @@ class I18nManager {
                 
                 // Messages
                 'page_saved': '¡Página guardada exitosamente!',
-                'template_saved': '¡Plantilla guardada exitosamente!',
                 'ai_page_applied': '¡Página generada por IA aplicada exitosamente!',
-                'template_applied': '¡Plantilla aplicada exitosamente!',
                 'product_imported': '¡Producto importado exitosamente!',
                 'page_published': '¡Página publicada exitosamente!'
             }
@@ -340,8 +313,7 @@ class I18nManager {
         const buttonsToUpdate = [
             { selector: '#preview-btn', key: 'preview' },
             { selector: '#save-btn', key: 'save' },
-            { selector: '#publish-btn', key: 'publish' },
-            { selector: '#save-template-btn', key: 'save_as_template' }
+            { selector: '#publish-btn', key: 'publish' }
         ];
 
         buttonsToUpdate.forEach(({ selector, key }) => {
@@ -356,7 +328,6 @@ class I18nManager {
         const navButtons = [
             { selector: '[data-section="builder"]', key: 'builder', icon: '🎨' },
             { selector: '[data-section="ai"]', key: 'ai_generator', icon: '🤖' },
-            { selector: '[data-section="templates"]', key: 'templates', icon: '📋' },
             { selector: '[data-section="import"]', key: 'import', icon: '📥' }
         ];
 
