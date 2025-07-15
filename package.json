@@ -1,0 +1,23 @@
+{
+  "name": "magic-page-wiz",
+  "version": "1.0.0",
+  "description": "Create pages and sales pages",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "page-builder",
+    "sales-pages",
+    "wizard"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
