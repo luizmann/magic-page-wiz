@@ -7,11 +7,15 @@ class PageBuilder {
             elements: [],
             settings: {
                 title: 'Untitled Page',
-                language: 'en'
+                language: 'en',
+                copyLevel: 'intermediate'
             }
         };
         this.history = [];
         this.historyIndex = -1;
+        this.autoSaveTimeout = null;
+        this.isSaving = false;
+        this.lastSaveTime = null;
         
         this.init();
     }
@@ -21,6 +25,8 @@ class PageBuilder {
         this.setupToolbar();
         this.setupCanvas();
         this.setupShortcuts();
+        this.setupCopyLevelSelector();
+        this.setupAutoSave();
         this.loadSavedState();
     }
 
@@ -131,10 +137,52 @@ class PageBuilder {
         });
     }
 
+    setupCopyLevelSelector() {
+        // Add copy level selector to the header
+        const headerRight = document.querySelector('.header-right');
+        if (headerRight && !document.getElementById('copy-level-selector')) {
+            const copyLevelContainer = document.createElement('div');
+            copyLevelContainer.className = 'copy-level-container';
+            copyLevelContainer.innerHTML = `
+                <label for="copy-level-selector" class="copy-level-label">Copy Level:</label>
+                <select id="copy-level-selector" class="copy-level-select">
+                    <option value="simple">Simple</option>
+                    <option value="intermediate" selected>Intermediate</option>
+                    <option value="advanced">Advanced/Persuasive</option>
+                </select>
+            `;
+            
+            // Insert before the first button
+            headerRight.insertBefore(copyLevelContainer, headerRight.firstChild);
+            
+            // Add event listener
+            const selector = document.getElementById('copy-level-selector');
+            selector.addEventListener('change', (e) => {
+                this.pageData.settings.copyLevel = e.target.value;
+                this.triggerAutoSave();
+                this.showNotification(`📝 Copy level changed to ${e.target.value}`);
+            });
+        }
+    }
+
+    setupAutoSave() {
+        // Auto-save every 30 seconds or when changes are made
+        this.autoSaveInterval = setInterval(() => {
+            if (this.hasUnsavedChanges()) {
+                this.autoSave();
+            }
+        }, 30000);
+
+        // Add save status indicator
+        this.addSaveStatusIndicator();
+    }
+
     addElement(elementType, data = {}) {
         const element = this.createElement(elementType, data);
         this.insertElementIntoCanvas(element);
         this.saveState();
+        this.triggerAutoSave();
+        this.optimizeLayoutOrder();
         return element;
     }
 
@@ -154,35 +202,77 @@ class PageBuilder {
     }
 
     getDefaultContent(elementType) {
+        const copyLevel = this.pageData.settings.copyLevel || 'intermediate';
+        
+        const contentByLevel = {
+            simple: {
+                text: { text: 'Your text here. Keep it simple and clear.' },
+                heading: { text: 'Your Heading', level: 'h2' },
+                button: { text: 'Click Here', link: '#' },
+                testimonial: {
+                    text: "Great product!",
+                    author: "Happy Customer",
+                    title: "Customer",
+                    image: "https://images.unsplash.com/photo-1494790108755-2616b612b436?w=60&h=60&fit=crop&crop=face"
+                },
+                pricing: { 
+                    title: 'Basic Plan',
+                    price: '$99',
+                    features: ['Feature 1', 'Feature 2', 'Feature 3']
+                }
+            },
+            intermediate: {
+                text: { text: 'Click to edit this text. Make it engaging and informative for your audience.' },
+                heading: { text: 'Your Compelling Heading Here', level: 'h2' },
+                button: { text: 'Get Started Today', link: '#' },
+                testimonial: {
+                    text: "This product completely changed my life. I saw results within the first week!",
+                    author: "Sarah Johnson",
+                    title: "Satisfied Customer",
+                    image: "https://images.unsplash.com/photo-1494790108755-2616b612b436?w=60&h=60&fit=crop&crop=face"
+                },
+                pricing: { 
+                    title: 'Professional Plan',
+                    price: '$197',
+                    features: ['Everything in Basic', 'Advanced Features', 'Priority Support', 'Money-Back Guarantee']
+                }
+            },
+            advanced: {
+                text: { text: 'Discover the life-changing secret that thousands of people are already using to transform their results. This proven method has helped our customers achieve extraordinary success in record time.' },
+                heading: { text: 'The Revolutionary System That Changes Everything', level: 'h2' },
+                button: { text: 'Claim Your Exclusive Access Now', link: '#' },
+                testimonial: {
+                    text: "I was skeptical at first, but this system delivered results beyond my wildest dreams. In just 30 days, I achieved what took me years to accomplish before. This is the real deal!",
+                    author: "Michael Rodriguez",
+                    title: "Success Story",
+                    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face"
+                },
+                pricing: { 
+                    title: 'EXCLUSIVE Elite Transformation Package',
+                    price: '$497',
+                    features: ['Complete System Access', '1-on-1 Coaching Calls', 'Lifetime Updates', 'Success Guarantee', 'Bonus Materials Worth $1000+', 'VIP Community Access']
+                }
+            }
+        };
+
+        const levelContent = contentByLevel[copyLevel] || contentByLevel.intermediate;
+        
         const defaults = {
-            text: { text: 'Click to edit text' },
-            heading: { text: 'Your Heading Here', level: 'h2' },
             image: { src: 'https://via.placeholder.com/400x200', alt: 'Image' },
             video: { src: '', provider: 'youtube' },
-            button: { text: 'Click Here', link: '#' },
             divider: { style: 'solid' },
             form: { fields: [{ type: 'email', label: 'Email', required: true }] },
             input: { type: 'text', label: 'Input Field', placeholder: 'Enter text...' },
             textarea: { label: 'Message', placeholder: 'Enter your message...' },
             checkbox: { label: 'I agree to terms', checked: false },
-            pricing: { 
-                title: 'Basic Plan',
-                price: '$99',
-                features: ['Feature 1', 'Feature 2', 'Feature 3']
-            },
-            testimonial: {
-                text: 'This is an amazing product!',
-                author: 'John Doe',
-                title: 'Customer',
-                image: 'https://via.placeholder.com/60x60'
-            },
             countdown: {
                 endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                title: 'Limited Time Offer!'
+                title: copyLevel === 'advanced' ? 'URGENT: Limited Time Offer Expires Soon!' : 'Limited Time Offer!'
             },
             social: {
                 platforms: ['facebook', 'twitter', 'instagram']
-            }
+            },
+            ...levelContent
         };
 
         return defaults[elementType] || {};
@@ -228,7 +318,9 @@ class PageBuilder {
     renderElement(elementData) {
         const { id, type, content, styles } = elementData;
         
-        const styleString = Object.entries(styles).map(([key, value]) => {
+        // Apply smart responsive styles based on element type and position
+        const enhancedStyles = this.enhanceElementStyles(elementData);
+        const styleString = Object.entries(enhancedStyles).map(([key, value]) => {
             const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
             return `${cssKey}: ${value}`;
         }).join('; ');
@@ -243,11 +335,11 @@ class PageBuilder {
                 innerHTML = `<${content.level} style="${styleString}">${content.text}</${content.level}>`;
                 break;
             case 'image':
-                innerHTML = `<img src="${content.src}" alt="${content.alt}" style="${styleString}">`;
+                innerHTML = `<img src="${content.src}" alt="${content.alt}" style="${styleString}" loading="lazy">`;
                 break;
             case 'video':
                 innerHTML = `<div class="video-container" style="${styleString}">
-                    <iframe width="100%" height="100%" src="${content.src}" frameborder="0" allowfullscreen></iframe>
+                    <iframe width="100%" height="100%" src="${content.src}" frameborder="0" allowfullscreen loading="lazy"></iframe>
                 </div>`;
                 break;
             case 'button':
@@ -257,19 +349,19 @@ class PageBuilder {
                 innerHTML = `<hr style="${styleString}">`;
                 break;
             case 'testimonial':
-                innerHTML = `<div class="testimonial" style="text-align: center; padding: 20px;">
-                    <img src="${content.image}" alt="${content.author}" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px;">
-                    <p style="font-style: italic; margin-bottom: 10px;">"${content.text}"</p>
-                    <strong>${content.author}</strong><br>
-                    <small>${content.title}</small>
+                innerHTML = `<div class="testimonial" style="text-align: center; padding: 30px 20px; background: #f8f9fa; border-radius: 12px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <img src="${content.image}" alt="${content.author}" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px; object-fit: cover; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <p style="font-style: italic; margin-bottom: 15px; font-size: 18px; line-height: 1.6; color: #2d3748;">"${content.text}"</p>
+                    <strong style="color: #4a5568; font-size: 16px;">${content.author}</strong><br>
+                    <small style="color: #718096; font-size: 14px;">${content.title}</small>
                 </div>`;
                 break;
             case 'pricing':
-                innerHTML = `<div class="pricing-card" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; text-align: center;">
-                    <h3>${content.title}</h3>
-                    <div style="font-size: 2rem; font-weight: bold; color: #667eea; margin: 20px 0;">${content.price}</div>
-                    <ul style="list-style: none; padding: 0;">
-                        ${content.features.map(feature => `<li style="margin: 10px 0;">✓ ${feature}</li>`).join('')}
+                innerHTML = `<div class="pricing-card" style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 30px 20px; text-align: center; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 20px 0; transition: transform 0.3s ease;">
+                    <h3 style="margin: 0 0 20px 0; color: #2d3748; font-size: 24px;">${content.title}</h3>
+                    <div style="font-size: 3rem; font-weight: bold; color: #667eea; margin: 30px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">${content.price}</div>
+                    <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                        ${content.features.map(feature => `<li style="margin: 15px 0; padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568;"><span style="color: #38a169; margin-right: 8px;">✓</span> ${feature}</li>`).join('')}
                     </ul>
                 </div>`;
                 break;
@@ -278,7 +370,7 @@ class PageBuilder {
         }
 
         return `
-            <div class="canvas-element" data-element-id="${id}" data-element-type="${type}">
+            <div class="canvas-element" data-element-id="${id}" data-element-type="${type}" style="margin: 20px 0; transition: all 0.3s ease;">
                 <div class="element-controls">
                     <button class="control-btn" data-action="edit" title="Edit">✏️</button>
                     <button class="control-btn" data-action="clone" title="Clone">📋</button>
@@ -287,6 +379,41 @@ class PageBuilder {
                 ${innerHTML}
             </div>
         `;
+    }
+
+    enhanceElementStyles(elementData) {
+        const { type, styles } = elementData;
+        const enhanced = { ...styles };
+        
+        // Apply responsive and visual enhancements based on element type
+        switch (type) {
+            case 'text':
+                enhanced.lineHeight = enhanced.lineHeight || '1.7';
+                enhanced.marginBottom = enhanced.marginBottom || '20px';
+                enhanced.maxWidth = enhanced.maxWidth || '100%';
+                break;
+            case 'heading':
+                enhanced.lineHeight = enhanced.lineHeight || '1.3';
+                enhanced.marginBottom = enhanced.marginBottom || '25px';
+                enhanced.marginTop = enhanced.marginTop || '30px';
+                break;
+            case 'image':
+                enhanced.maxWidth = enhanced.maxWidth || '100%';
+                enhanced.height = enhanced.height || 'auto';
+                enhanced.borderRadius = enhanced.borderRadius || '8px';
+                enhanced.boxShadow = enhanced.boxShadow || '0 4px 12px rgba(0,0,0,0.1)';
+                enhanced.display = enhanced.display || 'block';
+                enhanced.margin = enhanced.margin || '20px auto';
+                break;
+            case 'button':
+                enhanced.transition = enhanced.transition || 'all 0.3s ease';
+                enhanced.textDecoration = 'none';
+                enhanced.display = enhanced.display || 'inline-block';
+                enhanced.boxShadow = enhanced.boxShadow || '0 4px 12px rgba(0,0,0,0.2)';
+                break;
+        }
+        
+        return enhanced;
     }
 
     setupElementEvents(elementEl, elementData) {
@@ -441,6 +568,162 @@ class PageBuilder {
         // Re-render the element
         this.reRenderElement(elementData);
         this.saveState();
+        this.triggerAutoSave();
+    }
+
+    triggerAutoSave() {
+        // Debounced auto-save - save 2 seconds after last change
+        if (this.autoSaveTimeout) {
+            clearTimeout(this.autoSaveTimeout);
+        }
+        
+        this.autoSaveTimeout = setTimeout(() => {
+            this.autoSave();
+        }, 2000);
+        
+        this.updateSaveStatus('saving');
+    }
+
+    autoSave() {
+        if (this.isSaving) return;
+        
+        this.isSaving = true;
+        this.updateSaveStatus('saving');
+        
+        try {
+            localStorage.setItem('magic-page-wiz-data', JSON.stringify(this.pageData));
+            this.lastSaveTime = new Date();
+            this.updateSaveStatus('saved');
+            
+            setTimeout(() => {
+                this.updateSaveStatus('idle');
+            }, 2000);
+        } catch (e) {
+            console.error('Auto-save failed:', e);
+            this.updateSaveStatus('error');
+        } finally {
+            this.isSaving = false;
+        }
+    }
+
+    hasUnsavedChanges() {
+        const saved = localStorage.getItem('magic-page-wiz-data');
+        if (!saved) return true;
+        
+        try {
+            const savedData = JSON.parse(saved);
+            return JSON.stringify(savedData) !== JSON.stringify(this.pageData);
+        } catch (e) {
+            return true;
+        }
+    }
+
+    addSaveStatusIndicator() {
+        const headerRight = document.querySelector('.header-right');
+        if (headerRight && !document.getElementById('save-status')) {
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'save-status';
+            statusDiv.className = 'save-status';
+            statusDiv.innerHTML = '💾 <span>Saved</span>';
+            headerRight.appendChild(statusDiv);
+        }
+    }
+
+    updateSaveStatus(status) {
+        const statusElement = document.getElementById('save-status');
+        if (!statusElement) return;
+        
+        const statusSpan = statusElement.querySelector('span');
+        switch (status) {
+            case 'saving':
+                statusElement.innerHTML = '⏳ <span>Saving...</span>';
+                statusElement.className = 'save-status saving';
+                break;
+            case 'saved':
+                statusElement.innerHTML = '✅ <span>Saved</span>';
+                statusElement.className = 'save-status saved';
+                break;
+            case 'error':
+                statusElement.innerHTML = '❌ <span>Error</span>';
+                statusElement.className = 'save-status error';
+                break;
+            case 'idle':
+            default:
+                statusElement.innerHTML = '💾 <span>Auto-save enabled</span>';
+                statusElement.className = 'save-status idle';
+                break;
+        }
+    }
+
+    optimizeLayoutOrder() {
+        // Smart layout optimization - alternate text and images for better visual flow
+        if (this.pageData.elements.length < 2) return;
+        
+        const elements = this.pageData.elements;
+        const optimized = [];
+        const textElements = elements.filter(el => ['text', 'heading'].includes(el.type));
+        const imageElements = elements.filter(el => el.type === 'image');
+        const otherElements = elements.filter(el => !['text', 'heading', 'image'].includes(el.type));
+        
+        // Interleave text and images for better visual appeal
+        let textIndex = 0;
+        let imageIndex = 0;
+        let shouldAlternate = true;
+        
+        while (textIndex < textElements.length || imageIndex < imageElements.length) {
+            if (shouldAlternate && textIndex < textElements.length) {
+                optimized.push(textElements[textIndex++]);
+            } else if (imageIndex < imageElements.length) {
+                optimized.push(imageElements[imageIndex++]);
+            } else if (textIndex < textElements.length) {
+                optimized.push(textElements[textIndex++]);
+            }
+            shouldAlternate = !shouldAlternate;
+        }
+        
+        // Add other elements at the end in original order
+        optimized.push(...otherElements);
+        
+        // Update layout if order changed significantly
+        if (this.shouldUpdateLayout(elements, optimized)) {
+            this.pageData.elements = optimized;
+            this.renderCanvas();
+        }
+    }
+
+    shouldUpdateLayout(original, optimized) {
+        // Only update layout if the change improves visual organization
+        if (original.length !== optimized.length) return false;
+        
+        let changes = 0;
+        for (let i = 0; i < original.length; i++) {
+            if (original[i].id !== optimized[i].id) {
+                changes++;
+            }
+        }
+        
+        // Only reorganize if less than 50% of elements change position
+        return changes > 0 && changes < original.length * 0.5;
+    }
+
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'error' ? '#e53e3e' : type === 'success' ? '#10b981' : '#667eea'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
     }
 
     reRenderElement(elementData) {
