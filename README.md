@@ -11,7 +11,21 @@ Create pages and sales pages with automated product import from CJ Dropshipping 
 - **RESTful API**: Well-documented endpoints for product import and page access
 - **Comprehensive Testing**: Full test suite with Jest and Supertest
 
-## Installation
+## 🚀 Quick Start
+
+### Windows (One Click Setup)
+For Windows users, we provide an automated setup:
+
+[![Rodar Local](https://img.shields.io/badge/Windows-Rodar%20Local-blue?style=for-the-badge&logo=windows)](./start-local.bat)
+
+1. **Download the project** (Git clone or ZIP download)
+2. **Double-click** `start-local.bat`
+3. **Wait** for automatic setup and start
+4. **Access** http://localhost:3000
+
+> 📖 **Detailed Windows Guide:** See [RODAR-LOCALMENTE.md](./RODAR-LOCALMENTE.md) for step-by-step instructions.
+
+### Linux/Mac (Command Line)
 
 1. **Clone the repository:**
 ```bash
@@ -41,6 +55,17 @@ npm start
 ```
 
 The server will run on `http://localhost:3000` by default.
+
+## Local Development
+
+### Windows
+- **Automated setup:** Double-click `start-local.bat`
+- **Manual setup:** Follow [RODAR-LOCALMENTE.md](./RODAR-LOCALMENTE.md)
+
+### Linux/Mac
+- **Automated setup:** `./start-local.sh`
+- **Manual preparation:** `./prepare-local.sh` then `npm install && npm run dev`
+- **Manual setup:** Follow the installation steps above
 
 ## Configuration (.env)
 
