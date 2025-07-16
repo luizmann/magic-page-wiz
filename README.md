@@ -22,12 +22,30 @@ cd magic-page-wiz
 npm install
 ```
 
-3. Start the server:
+3. Set up environment variables (optional):
+```bash
+cp .env.example .env
+# Edit .env with your API credentials
+```
+
+4. Start the server:
 ```bash
 npm start
 ```
 
 The server will run on port 3000 by default.
+
+## Testing
+
+Run the automated test suite:
+
+```bash
+# Run tests once
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+```
 
 ## Environment Setup
 
@@ -308,6 +326,32 @@ For development and debugging, you can disable headless mode for scraping:
 - **axios**: HTTP client for API requests
 - **cheerio**: Server-side jQuery for HTML parsing
 - **puppeteer**: Browser automation for dynamic scraping
+
+### Development Dependencies
+
+- **jest**: JavaScript testing framework
+- **supertest**: HTTP testing library
+
+## Testing
+
+The project includes automated tests for all API endpoints:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode during development
+npm run test:watch
+```
+
+### Test Coverage
+
+- ✅ Health endpoint functionality
+- ✅ API examples endpoint
+- ✅ Method parameter validation
+- ✅ Error handling and clear error messages
+- ✅ Configuration validation
+- ✅ All supported import methods
 
 ## Contributing
 
