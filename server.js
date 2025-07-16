@@ -2,9 +2,13 @@ const express = require('express');
 const path = require('path');
 const CJDropshippingService = require('./services/cj-dropshipping');
 const ShopifyService = require('./services/shopify');
+const PageGeneratorService = require('./services/page-generator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize services
+const pageGenerator = new PageGeneratorService();
 
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -58,6 +62,16 @@ app.post('/api/import/cj', async (req, res) => {
         const cjService = new CJDropshippingService(config);
         const result = await cjService.importProducts(method, options);
         
+        // If import was successful, generate pages for the products
+        if (result.success && result.data && result.data.length > 0) {
+            const pageGenResult = await pageGenerator.generateProductPages(result.data, 'cj-dropshipping');
+            
+            // Combine the import result with page generation results
+            result.pageGeneration = pageGenResult;
+            result.generatedPages = pageGenResult.results.filter(r => r.success);
+            result.pagePaths = result.generatedPages.map(p => p.pagePath);
+        }
+        
         res.json(result);
     } catch (error) {
         res.status(500).json({
@@ -100,12 +114,60 @@ app.post('/api/import/shopify', async (req, res) => {
         const shopifyService = new ShopifyService(config);
         const result = await shopifyService.importProducts(method, options);
         
+        // If import was successful, generate pages for the products
+        if (result.success && result.data && result.data.length > 0) {
+            const pageGenResult = await pageGenerator.generateProductPages(result.data, 'shopify');
+            
+            // Combine the import result with page generation results
+            result.pageGeneration = pageGenResult;
+            result.generatedPages = pageGenResult.results.filter(r => r.success);
+            result.pagePaths = result.generatedPages.map(p => p.pagePath);
+        }
+        
         res.json(result);
     } catch (error) {
         res.status(500).json({
             success: false,
             error: error.message,
             message: 'Internal server error during Shopify import'
+        });
+    }
+});
+
+// List all available product pages
+app.get('/api/produtos', async (req, res) => {
+    try {
+        const result = await pageGenerator.listProductPages();
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            message: 'Internal server error while listing product pages'
+        });
+    }
+});
+
+// Product page access endpoints
+app.get('/produtos/:slug', async (req, res) => {
+    try {
+        const { slug } = req.params;
+        const result = await pageGenerator.getProductPage(slug);
+        
+        if (result.success) {
+            res.json(result.product);
+        } else {
+            res.status(404).json({
+                success: false,
+                error: result.error,
+                message: `Product page '${slug}' not found`
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            message: 'Internal server error while accessing product page'
         });
     }
 });

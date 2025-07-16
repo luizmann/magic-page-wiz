@@ -1,15 +1,22 @@
 const request = require('supertest');
 const express = require('express');
+const path = require('path');
+const fs = require('fs').promises;
 
 // Create a separate app instance for testing to avoid port conflicts
 const app = express();
 const CJDropshippingService = require('../services/cj-dropshipping');
 const ShopifyService = require('../services/shopify');
+const PageGeneratorService = require('../services/page-generator');
 
 // Configure app exactly like the main server but without starting it
 app.use(express.static(__dirname + '/../public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Initialize services with test directory to avoid conflicts
+const testDir = path.join(__dirname, '../tmp/test-api-produtos');
+const pageGenerator = new PageGeneratorService({ pagesDir: testDir });
 
 // Health endpoint
 app.get('/health', (req, res) => {
@@ -46,6 +53,16 @@ app.post('/api/import/cj', async (req, res) => {
 
         const cjService = new CJDropshippingService(config);
         const result = await cjService.importProducts(method, options);
+        
+        // If import was successful, generate pages for the products
+        if (result.success && result.data && result.data.length > 0) {
+            const pageGenResult = await pageGenerator.generateProductPages(result.data, 'cj-dropshipping');
+            
+            // Combine the import result with page generation results
+            result.pageGeneration = pageGenResult;
+            result.generatedPages = pageGenResult.results.filter(r => r.success);
+            result.pagePaths = result.generatedPages.map(p => p.pagePath);
+        }
         
         res.json(result);
     } catch (error) {
@@ -87,6 +104,16 @@ app.post('/api/import/shopify', async (req, res) => {
 
         const shopifyService = new ShopifyService(config);
         const result = await shopifyService.importProducts(method, options);
+        
+        // If import was successful, generate pages for the products
+        if (result.success && result.data && result.data.length > 0) {
+            const pageGenResult = await pageGenerator.generateProductPages(result.data, 'shopify');
+            
+            // Combine the import result with page generation results
+            result.pageGeneration = pageGenResult;
+            result.generatedPages = pageGenResult.results.filter(r => r.success);
+            result.pagePaths = result.generatedPages.map(p => p.pagePath);
+        }
         
         res.json(result);
     } catch (error) {
@@ -176,7 +203,62 @@ app.get('/api/import/examples', (req, res) => {
     });
 });
 
+// Product page access endpoints
+app.get('/produtos/:slug', async (req, res) => {
+    try {
+        const { slug } = req.params;
+        const result = await pageGenerator.getProductPage(slug);
+        
+        if (result.success) {
+            res.json(result.product);
+        } else {
+            res.status(404).json({
+                success: false,
+                error: result.error,
+                message: `Product page '${slug}' not found`
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            message: 'Internal server error while accessing product page'
+        });
+    }
+});
+
+app.get('/api/produtos', async (req, res) => {
+    try {
+        const result = await pageGenerator.listProductPages();
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            message: 'Internal server error while listing product pages'
+        });
+    }
+});
+
 describe('Magic Page Wiz API Endpoints', () => {
+    
+    beforeEach(async () => {
+        // Clean up test directory before each test
+        try {
+            await fs.rm(testDir, { recursive: true, force: true });
+        } catch (error) {
+            // Directory doesn't exist, which is fine
+        }
+    });
+
+    afterEach(async () => {
+        // Clean up test directory after each test
+        try {
+            await fs.rm(testDir, { recursive: true, force: true });
+        } catch (error) {
+            // Directory might not exist, which is fine
+        }
+    });
     
     describe('GET /health', () => {
         it('should return health status', async () => {

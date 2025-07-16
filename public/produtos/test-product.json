@@ -1,0 +1,31 @@
+{
+  "id": "test-123",
+  "title": "Test Product",
+  "slug": "test-product",
+  "description": "This is a test product created manually",
+  "price": "$29.99",
+  "currency": "BRL",
+  "images": ["https://example.com/test-image.jpg"],
+  "vendor": "Test Store",
+  "sku": "TEST-SKU",
+  "tags": ["test", "demo"],
+  "productType": "Electronics",
+  "variants": [
+    {
+      "id": "1",
+      "title": "Default",
+      "price": "$29.99",
+      "sku": "TEST-SKU",
+      "inventory_quantity": 10,
+      "available": true
+    }
+  ],
+  "source": "manual",
+  "sourceUrl": "",
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "updatedAt": "2024-01-15T10:30:00.000Z",
+  "metadata": {
+    "imported": false,
+    "created": "manual"
+  }
+}

@@ -1,366 +1,448 @@
 # Magic Page Wiz
 
-Create pages and sales pages with integrated product import capabilities from CJ Dropshipping and Shopify.
+Create pages and sales pages with automated product import from CJ Dropshipping and Shopify.
 
 ## Features
 
-- **Page Builder**: Create and customize sales pages
-- **Product Import**: Import products from CJ Dropshipping and Shopify
-- **Multiple Import Methods**: Support for both API and scraping methods
-- **Flexible Configuration**: Easy setup for different data sources
+- **Product Import**: Import products from CJ Dropshipping and Shopify using API or scraping methods
+- **Automatic Page Generation**: Automatically creates JSON pages for imported products
+- **Multiple Import Methods**: Support for API, Puppeteer scraping, and Cheerio scraping
+- **Clean Architecture**: Modular service-based architecture with comprehensive error handling
+- **RESTful API**: Well-documented endpoints for product import and page access
+- **Comprehensive Testing**: Full test suite with Jest and Supertest
 
 ## Installation
 
-1. Clone the repository:
+1. **Clone the repository:**
 ```bash
 git clone https://github.com/luizmann/magic-page-wiz.git
 cd magic-page-wiz
 ```
 
-2. Install dependencies:
+2. **Install dependencies:**
 ```bash
 npm install
 ```
 
-3. Set up environment variables (optional):
+3. **Set up environment variables:**
 ```bash
 cp .env.example .env
-# Edit .env with your API credentials
 ```
 
-4. Start the server:
+Edit the `.env` file with your credentials (see Configuration section below).
+
+4. **Start the server:**
 ```bash
+# Development
+npm run dev
+
+# Production
 npm start
 ```
 
-The server will run on port 3000 by default.
+The server will run on `http://localhost:3000` by default.
 
-## Testing
+## Configuration (.env)
 
-Run the automated test suite:
+Create a `.env` file based on `.env.example` and configure the following variables:
 
-```bash
-# Run tests once
-npm test
-
-# Run tests in watch mode
-npm run test:watch
+### Server Configuration
+```env
+PORT=3000
+NODE_ENV=development
 ```
 
-## Environment Setup
-
-### For Puppeteer (if using scraping methods)
-
-If you encounter issues with Puppeteer installation in restricted environments, you can skip the browser download:
-
-```bash
-PUPPETEER_SKIP_DOWNLOAD=true npm install
+### CJ Dropshipping API Configuration
+```env
+CJ_EMAIL=your-email@example.com
+CJ_PASSWORD=your-password
+CJ_ACCESS_TOKEN=your-cj-access-token
+CJ_API_URL=https://developers.cjdropshipping.com/api2.0
 ```
 
-Note: Scraping methods may not work without a proper browser installation.
+### Shopify API Configuration
+```env
+SHOPIFY_SHOP_DOMAIN=your-shop.myshopify.com
+SHOPIFY_ACCESS_TOKEN=shpat_your-access-token
+SHOPIFY_API_VERSION=2023-10
+```
+
+### Puppeteer Configuration (for scraping methods)
+```env
+PUPPETEER_HEADLESS=true
+PUPPETEER_TIMEOUT=30000
+PUPPETEER_SKIP_DOWNLOAD=true
+```
 
 ## API Endpoints
 
-### CJ Dropshipping Import
+### Product Import Endpoints
 
-**Endpoint**: `POST /api/import/cj`
+#### Import from CJ Dropshipping
+**POST** `/api/import/cj`
 
-Import products from CJ Dropshipping using either API or scraping methods.
+Imports products from CJ Dropshipping and automatically generates product pages.
 
-#### API Method
-
-```bash
-curl -X POST http://localhost:3000/api/import/cj \
-  -H "Content-Type: application/json" \
-  -d '{
-    "method": "api",
-    "config": {
-      "email": "your-email@example.com",
-      "password": "your-password",
-      "accessToken": "your-access-token"
-    },
-    "options": {
-      "page": 1,
-      "limit": 20,
-      "categoryId": "optional-category-id",
-      "keyword": "search-keyword"
-    }
-  }'
-```
-
-#### Scraping Method
-
-```bash
-curl -X POST http://localhost:3000/api/import/cj \
-  -H "Content-Type: application/json" \
-  -d '{
-    "method": "scraping",
-    "config": {
-      "headless": true,
-      "timeout": 30000
-    },
-    "options": {
-      "url": "https://cjdropshipping.com/product/example"
-    }
-  }'
-```
-
-### Shopify Import
-
-**Endpoint**: `POST /api/import/shopify`
-
-Import products from Shopify stores using either API or scraping methods.
-
-#### API Method
-
-```bash
-curl -X POST http://localhost:3000/api/import/shopify \
-  -H "Content-Type: application/json" \
-  -d '{
-    "method": "api",
-    "config": {
-      "shopDomain": "your-shop.myshopify.com",
-      "accessToken": "shpat_your-access-token",
-      "apiVersion": "2023-10"
-    },
-    "options": {
-      "limit": 20,
-      "fields": "id,title,handle,body_html,vendor,variants,images",
-      "published_status": "published"
-    }
-  }'
-```
-
-#### Scraping Method
-
-```bash
-curl -X POST http://localhost:3000/api/import/shopify \
-  -H "Content-Type: application/json" \
-  -d '{
-    "method": "scraping",
-    "config": {
-      "shopDomain": "your-shop.myshopify.com",
-      "headless": true,
-      "timeout": 30000
-    },
-    "options": {
-      "url": "https://your-shop.myshopify.com",
-      "productsUrl": "https://your-shop.myshopify.com/collections/all"
-    }
-  }'
-```
-
-### Examples and Documentation
-
-**Endpoint**: `GET /api/import/examples`
-
-Get complete examples and documentation for all import methods.
-
-## API Configuration Guides
-
-### CJ Dropshipping API Setup
-
-1. **Create CJ Dropshipping Account**:
-   - Visit [CJ Dropshipping](https://cjdropshipping.com)
-   - Create a business account
-
-2. **Get API Credentials**:
-   - Go to [CJ Developers](https://developers.cjdropshipping.com)
-   - Apply for API access
-   - Get your email, password, and access token
-
-3. **API Documentation**:
-   - Base URL: `https://developers.cjdropshipping.com/api2.0`
-   - Authentication: Access Token in header `CJ-Access-Token`
-   - [Official API Docs](https://developers.cjdropshipping.com/api2.0/overview)
-
-#### Example API Configuration
-
-```javascript
+**Request Body:**
+```json
 {
+  "method": "api",
   "config": {
-    "apiUrl": "https://developers.cjdropshipping.com/api2.0",
-    "email": "your-business-email@company.com",
+    "email": "your-email@example.com",
     "password": "your-password",
-    "accessToken": "your-cj-access-token"
+    "accessToken": "your-access-token"
+  },
+  "options": {
+    "page": 1,
+    "limit": 20,
+    "categoryId": "optional-category-id",
+    "keyword": "optional-search-keyword"
   }
 }
 ```
 
-### Shopify API Setup
-
-1. **Create Shopify App**:
-   - Go to your Shopify Admin
-   - Navigate to Apps > App and sales channel settings
-   - Click "Develop apps" and create a new app
-
-2. **Configure API Permissions**:
-   - Add the following scopes:
-     - `read_products`
-     - `read_product_listings`
-     - `read_collections`
-
-3. **Get Access Token**:
-   - Install the app to your store
-   - Copy the Admin API access token
-
-4. **API Documentation**:
-   - Base URL: `https://your-shop.myshopify.com/admin/api/2023-10`
-   - Authentication: Access Token in header `X-Shopify-Access-Token`
-   - [Official API Docs](https://shopify.dev/docs/api/admin-rest)
-
-#### Example API Configuration
-
-```javascript
+**Scraping Example:**
+```json
 {
+  "method": "scraping",
   "config": {
-    "shopDomain": "your-shop.myshopify.com",
-    "accessToken": "shpat_abcdef123456789",
-    "apiVersion": "2023-10"
+    "headless": true,
+    "timeout": 30000
+  },
+  "options": {
+    "url": "https://cjdropshipping.com/product/example"
   }
 }
 ```
 
-## Import Methods
-
-### API Method
-- **Pros**: Reliable, structured data, faster, respects rate limits
-- **Cons**: Requires API credentials and permissions
-- **Best for**: Production environments, bulk imports
-
-### Scraping Method (Puppeteer)
-- **Pros**: Works with any public website, no API credentials needed
-- **Cons**: Slower, browser-dependent, may break with website changes
-- **Best for**: Quick testing, sites without API access
-
-### Cheerio Method
-- **Pros**: Faster than Puppeteer, no browser required
-- **Cons**: Limited to static content, may not work with dynamic sites
-- **Best for**: Simple HTML scraping, lightweight operations
-
-## Response Format
-
-All import endpoints return responses in the following format:
-
-```javascript
-{
-  "success": true|false,
-  "method": "api|scraping|cheerio",
-  "data": [], // Array of imported products
-  "message": "Description of the operation",
-  "error": "Error message (if success is false)"
-}
-```
-
-### Example Success Response
-
-```javascript
+**Response:**
+```json
 {
   "success": true,
   "method": "api",
   "data": [
     {
-      "id": "123456",
-      "title": "Product Name",
-      "price": "$29.99",
-      "description": "Product description...",
-      "images": ["https://example.com/image1.jpg"],
-      "vendor": "Brand Name"
+      "id": "cj-123",
+      "title": "Product Title",
+      "price": "$19.99",
+      "description": "Product description",
+      "images": ["https://example.com/image.jpg"]
     }
   ],
-  "message": "Products imported successfully via API"
+  "pageGeneration": {
+    "success": true,
+    "successCount": 1,
+    "errorCount": 0
+  },
+  "generatedPages": [
+    {
+      "slug": "product-title",
+      "pagePath": "/produtos/product-title.json"
+    }
+  ],
+  "pagePaths": ["/produtos/product-title.json"]
 }
 ```
 
-### Example Error Response
+#### Import from Shopify
+**POST** `/api/import/shopify`
 
-```javascript
+Imports products from Shopify and automatically generates product pages.
+
+**Request Body:**
+```json
 {
-  "success": false,
   "method": "api",
-  "error": "Invalid access token",
-  "message": "Failed to import products via API"
-}
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Puppeteer Installation Failed**:
-   ```bash
-   PUPPETEER_SKIP_DOWNLOAD=true npm install
-   ```
-
-2. **API Authentication Errors**:
-   - Verify your credentials are correct
-   - Check API token permissions
-   - Ensure API version compatibility
-
-3. **Scraping Failures**:
-   - Check if the target website blocks bots
-   - Verify the URL is accessible
-   - Try using different user agents
-
-4. **Rate Limiting**:
-   - Implement delays between requests
-   - Use API methods when available
-   - Monitor API usage limits
-
-### Debug Mode
-
-For development and debugging, you can disable headless mode for scraping:
-
-```javascript
-{
   "config": {
-    "headless": false,
-    "timeout": 60000
+    "shopDomain": "your-shop.myshopify.com",
+    "accessToken": "shpat_your-access-token",
+    "apiVersion": "2023-10"
+  },
+  "options": {
+    "limit": 20,
+    "fields": "id,title,handle,body_html,vendor,variants,images",
+    "published_status": "published"
   }
 }
 ```
 
-## Dependencies
+**Scraping Example:**
+```json
+{
+  "method": "scraping",
+  "config": {
+    "headless": true,
+    "timeout": 30000
+  },
+  "options": {
+    "url": "https://your-shop.myshopify.com",
+    "productsUrl": "https://your-shop.myshopify.com/collections/all"
+  }
+}
+```
 
-- **express**: Web server framework
-- **axios**: HTTP client for API requests
-- **cheerio**: Server-side jQuery for HTML parsing
-- **puppeteer**: Browser automation for dynamic scraping
+### Product Page Access Endpoints
 
-### Development Dependencies
+#### Get Specific Product Page
+**GET** `/produtos/:slug`
 
-- **jest**: JavaScript testing framework
-- **supertest**: HTTP testing library
+Retrieves a specific product page by its slug.
 
-## Testing
+**Example:** `GET /produtos/iphone-14-pro-max`
 
-The project includes automated tests for all API endpoints:
+**Response:**
+```json
+{
+  "id": "shop-123",
+  "title": "iPhone 14 Pro Max",
+  "slug": "iphone-14-pro-max",
+  "description": "Latest iPhone model",
+  "price": "$999.99",
+  "currency": "BRL",
+  "images": ["https://example.com/iphone.jpg"],
+  "vendor": "Apple Store",
+  "variants": [
+    {
+      "id": "1",
+      "title": "128GB",
+      "price": "$999.99",
+      "sku": "IPH14PM128",
+      "available": true
+    }
+  ],
+  "source": "shopify",
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "metadata": {
+    "imported": true,
+    "importDate": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
 
+#### List All Product Pages
+**GET** `/api/produtos`
+
+Lists all available product pages.
+
+**Response:**
+```json
+{
+  "success": true,
+  "count": 3,
+  "slugs": [
+    "iphone-14-pro-max",
+    "samsung-galaxy-s24",
+    "macbook-pro-16"
+  ]
+}
+```
+
+### Utility Endpoints
+
+#### Health Check
+**GET** `/health`
+
+**Response:**
+```json
+{
+  "status": "OK",
+  "message": "Magic Page Wiz is running!"
+}
+```
+
+#### Get API Examples
+**GET** `/api/import/examples`
+
+Returns detailed examples and documentation for all import methods.
+
+## Import Methods
+
+### API Method
+- **CJ Dropshipping**: Uses official CJ Dropshipping API v2.0
+- **Shopify**: Uses Shopify Admin REST API
+- **Requirements**: Valid API credentials
+- **Benefits**: Fast, reliable, structured data
+
+### Scraping Method (Puppeteer)
+- **Technology**: Puppeteer with headless Chrome
+- **Use Cases**: When API access is not available
+- **Requirements**: Valid product URLs
+- **Benefits**: Can extract data from any product page
+
+### Cheerio Method
+- **Technology**: Server-side jQuery-like HTML parsing
+- **Use Cases**: Lightweight scraping for simple pages
+- **Requirements**: Valid product URLs
+- **Benefits**: Fast, low resource usage
+
+## Generated Page Structure
+
+When products are imported, JSON pages are automatically created in `/public/produtos/` with the following structure:
+
+```json
+{
+  "id": "unique-product-id",
+  "title": "Product Title",
+  "slug": "url-friendly-slug",
+  "description": "Product description",
+  "price": "$19.99",
+  "currency": "BRL",
+  "images": ["https://example.com/image1.jpg"],
+  "vendor": "Store Name",
+  "sku": "PRODUCT-SKU",
+  "tags": ["tag1", "tag2"],
+  "productType": "Electronics",
+  "variants": [
+    {
+      "id": "1",
+      "title": "Default",
+      "price": "$19.99",
+      "sku": "SKU123",
+      "inventory_quantity": 10,
+      "available": true
+    }
+  ],
+  "source": "shopify",
+  "sourceUrl": "https://original-product-url.com",
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "updatedAt": "2024-01-15T10:30:00.000Z",
+  "metadata": {
+    "imported": true,
+    "importDate": "2024-01-15T10:30:00.000Z",
+    "originalData": { /* Original API/scraped data */ }
+  }
+}
+```
+
+## Local Testing
+
+### 1. Start the Development Server
+```bash
+npm run dev
+```
+
+### 2. Test Health Endpoint
+```bash
+curl http://localhost:3000/health
+```
+
+### 3. Test Product Import (Mock)
+```bash
+curl -X POST http://localhost:3000/api/import/cj \
+  -H "Content-Type: application/json" \
+  -d '{
+    "method": "api",
+    "config": {},
+    "options": {}
+  }'
+```
+
+### 4. List Generated Products
+```bash
+curl http://localhost:3000/api/produtos
+```
+
+### 5. Access a Product Page
+```bash
+curl http://localhost:3000/produtos/product-slug
+```
+
+### 6. Run Tests
 ```bash
 # Run all tests
 npm test
 
-# Run tests in watch mode during development
+# Run tests in watch mode
 npm run test:watch
+
+# Run specific test file
+npx jest __tests__/page-generator.test.js
 ```
 
-### Test Coverage
+## Error Handling
 
-- ✅ Health endpoint functionality
-- ✅ API examples endpoint
-- ✅ Method parameter validation
-- ✅ Error handling and clear error messages
-- ✅ Configuration validation
-- ✅ All supported import methods
+The API provides clear error messages for common scenarios:
+
+### Missing Credentials
+```json
+{
+  "success": false,
+  "error": "CJ Dropshipping API access token is required",
+  "message": "Failed to import products via API"
+}
+```
+
+### Invalid Method
+```json
+{
+  "success": false,
+  "error": "Invalid method. Use one of: api, scraping, puppeteer, cheerio",
+  "examplePayload": { /* Example request */ }
+}
+```
+
+### Scraping Failures
+```json
+{
+  "success": false,
+  "error": "Product URL is required for scraping",
+  "message": "Failed to import products via scraping"
+}
+```
+
+### Product Not Found
+```json
+{
+  "success": false,
+  "error": "Product page not found",
+  "message": "Product page 'non-existent-product' not found"
+}
+```
+
+## Architecture
+
+### Services
+- **CJDropshippingService**: Handles CJ Dropshipping API and scraping
+- **ShopifyService**: Handles Shopify API and scraping
+- **PageGeneratorService**: Manages automatic page generation and access
+
+### Directory Structure
+```
+magic-page-wiz/
+├── services/
+│   ├── cj-dropshipping.js      # CJ Dropshipping integration
+│   ├── shopify.js              # Shopify integration
+│   └── page-generator.js       # Page generation logic
+├── __tests__/
+│   ├── api.test.js             # API endpoint tests
+│   ├── services.test.js        # Service unit tests
+│   ├── page-generator.test.js  # Page generator tests
+│   └── integration.test.js     # End-to-end tests
+├── public/
+│   ├── produtos/               # Generated product pages
+│   ├── js/                     # Frontend JavaScript
+│   └── css/                    # Stylesheets
+├── server.js                   # Main Express server
+├── package.json                # Dependencies and scripts
+└── README.md                   # This documentation
+```
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass: `npm test`
+6. Submit a pull request
 
 ## License
 
 ISC License
+
+## Support
+
+For support and questions:
+- Create an issue on GitHub
+- Check the `/api/import/examples` endpoint for usage examples
+- Review the test files for implementation examples
