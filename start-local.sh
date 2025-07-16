@@ -19,6 +19,8 @@ echo "[STEP 2] Installing dependencies..."
 echo "  Running: npm install"
 echo "  (This may take a few minutes on first run)"
 echo
+# Set environment variable to skip Puppeteer download if needed
+export PUPPETEER_SKIP_DOWNLOAD=true
 npm install
 if [ $? -ne 0 ]; then
     echo "❌ Error installing dependencies!"

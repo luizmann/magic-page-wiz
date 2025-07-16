@@ -151,6 +151,8 @@ set PUPPETEER_SKIP_DOWNLOAD=true
 npm install
 ```
 
+**Nota:** Os scripts automáticos (`start-local.bat`) já incluem essa configuração.
+
 ### Scripts .bat não executam
 **Soluções:**
 1. Verifique se está na pasta correta do projeto

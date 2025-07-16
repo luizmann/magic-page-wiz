@@ -20,6 +20,8 @@ echo [ETAPA 2] Instalando dependencias...
 echo   Executando: npm install
 echo   (Isso pode demorar alguns minutos na primeira vez)
 echo.
+REM Set environment variable to skip Puppeteer download if needed
+set PUPPETEER_SKIP_DOWNLOAD=true
 npm install
 if errorlevel 1 (
     echo ❌ Erro ao instalar dependencias!
