@@ -1,9 +1,9 @@
-node_modules
 npm-debug.log
 .git
 .gitignore
 README_ORIGINAL.md
 Dockerfile
+Dockerfile.working
 .dockerignore
 coverage
 .env
