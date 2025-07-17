@@ -1,473 +1,332 @@
 # Magic Page Wiz
 
-Create pages and sales pages with automated product import from CJ Dropshipping and Shopify.
+Magic Page Wiz é uma solução moderna para criação e gestão de landing pages inteligentes, integradas a funis de vendas, automações e recursos de inteligência artificial. Ideal para times de marketing, agências e operações omnichannel que buscam conversão e automação avançada.
 
-## Features
+---
 
-- **Product Import**: Import products from CJ Dropshipping and Shopify using API or scraping methods
-- **Automatic Page Generation**: Automatically creates JSON pages for imported products
-- **Multiple Import Methods**: Support for API, Puppeteer scraping, and Cheerio scraping
-- **Clean Architecture**: Modular service-based architecture with comprehensive error handling
-- **RESTful API**: Well-documented endpoints for product import and page access
-- **Comprehensive Testing**: Full test suite with Jest and Supertest
+## ✨ Visão Geral
 
-## 🚀 Quick Start
+- **Frontend:** Páginas dinâmicas com templates editáveis para landing pages e formulários inteligentes
+- **Backend:** Node.js, Express, sistema de importação automatizada, gestão de leads via JSON
+- **Integrações:** CJ Dropshipping, Shopify, automação de produtos e geração de páginas
+- **Recursos:** Templates editáveis, importação automatizada de produtos, formulários dinâmicos, APIs RESTful
+- **Pronto para Produção:** Docker Compose, documentação completa, arquitetura modular, testes automatizados
 
-### Windows (One Click Setup)
-For Windows users, we provide an automated setup:
+---
 
-[![Rodar Local](https://img.shields.io/badge/Windows-Rodar%20Local-blue?style=for-the-badge&logo=windows)](./start-local.bat)
+## 🛠️ Tecnologias Principais
 
-1. **Download the project** (Git clone or ZIP download)
-2. **Double-click** `start-local.bat`
-3. **Wait** for automatic setup and start
-4. **Access** http://localhost:3000
+- **Frontend:** HTML5, CSS3, JavaScript, templates responsivos
+- **Backend:** Node.js, Express, JavaScript
+- **Integrações:** CJ Dropshipping API, Shopify API, Puppeteer, Cheerio
+- **Outros:** Jest para testes, Express para APIs RESTful, arquitetura modular
 
-> 📖 **Detailed Windows Guide:** See [RODAR-LOCALMENTE.md](./RODAR-LOCALMENTE.md) for step-by-step instructions.
+---
 
-### Linux/Mac (Command Line)
+## 📦 Estrutura de Pastas
 
-1. **Clone the repository:**
+```
+magic-page-wiz/
+├── services/
+│   ├── cj-dropshipping.js       # Integração CJ Dropshipping
+│   ├── shopify.js               # Integração Shopify  
+│   └── page-generator.js        # Geração automática de páginas
+├── public/
+│   ├── produtos/                # Páginas de produtos geradas
+│   ├── js/                      # JavaScript frontend
+│   ├── css/                     # Estilos CSS
+│   ├── index.html               # Página principal
+│   └── builder.html             # Construtor de páginas
+├── __tests__/                   # Testes automatizados
+├── docker-compose.yml           # Orquestração Docker
+├── Dockerfile                   # Container principal
+├── server.js                    # Servidor Express principal
+└── README.md                    # Esta documentação
+```
+
+---
+
+## 🚀 Instalação e Execução
+
+### 1. Pré-requisitos:
+- Docker e Docker Compose instalados
+- Node.js 14+ (para desenvolvimento local)
+
+### 2. Clone o repositório:
 ```bash
 git clone https://github.com/luizmann/magic-page-wiz.git
 cd magic-page-wiz
 ```
 
-2. **Install dependencies:**
+### 3. Configuração via Docker (Recomendado):
 ```bash
+# Subir toda a stack
+docker-compose up --build
+
+# Executar em background
+docker-compose up -d --build
+```
+
+### 4. Configuração Local (Desenvolvimento):
+```bash
+# Instalar dependências
 npm install
-```
 
-3. **Set up environment variables:**
-```bash
+# Configurar variáveis de ambiente
 cp .env.example .env
-```
 
-Edit the `.env` file with your credentials (see Configuration section below).
-
-4. **Start the server:**
-```bash
-# Development
-npm run dev
-
-# Production
-npm start
-```
-
-The server will run on `http://localhost:3000` by default.
-
-## Local Development
-
-### Windows
-- **Automated setup:** Double-click `start-local.bat`
-- **Manual setup:** Follow [RODAR-LOCALMENTE.md](./RODAR-LOCALMENTE.md)
-
-### Linux/Mac
-- **Automated setup:** `./start-local.sh`
-- **Manual preparation:** `./prepare-local.sh` then `npm install && npm run dev`
-- **Manual setup:** Follow the installation steps above
-
-## Configuration (.env)
-
-Create a `.env` file based on `.env.example` and configure the following variables:
-
-### Server Configuration
-```env
-PORT=3000
-NODE_ENV=development
-```
-
-### CJ Dropshipping API Configuration
-```env
-CJ_EMAIL=your-email@example.com
-CJ_PASSWORD=your-password
-CJ_ACCESS_TOKEN=your-cj-access-token
-CJ_API_URL=https://developers.cjdropshipping.com/api2.0
-```
-
-### Shopify API Configuration
-```env
-SHOPIFY_SHOP_DOMAIN=your-shop.myshopify.com
-SHOPIFY_ACCESS_TOKEN=shpat_your-access-token
-SHOPIFY_API_VERSION=2023-10
-```
-
-### Puppeteer Configuration (for scraping methods)
-```env
-PUPPETEER_HEADLESS=true
-PUPPETEER_TIMEOUT=30000
-PUPPETEER_SKIP_DOWNLOAD=true
-```
-
-## API Endpoints
-
-### Product Import Endpoints
-
-#### Import from CJ Dropshipping
-**POST** `/api/import/cj`
-
-Imports products from CJ Dropshipping and automatically generates product pages.
-
-**Request Body:**
-```json
-{
-  "method": "api",
-  "config": {
-    "email": "your-email@example.com",
-    "password": "your-password",
-    "accessToken": "your-access-token"
-  },
-  "options": {
-    "page": 1,
-    "limit": 20,
-    "categoryId": "optional-category-id",
-    "keyword": "optional-search-keyword"
-  }
-}
-```
-
-**Scraping Example:**
-```json
-{
-  "method": "scraping",
-  "config": {
-    "headless": true,
-    "timeout": 30000
-  },
-  "options": {
-    "url": "https://cjdropshipping.com/product/example"
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "method": "api",
-  "data": [
-    {
-      "id": "cj-123",
-      "title": "Product Title",
-      "price": "$19.99",
-      "description": "Product description",
-      "images": ["https://example.com/image.jpg"]
-    }
-  ],
-  "pageGeneration": {
-    "success": true,
-    "successCount": 1,
-    "errorCount": 0
-  },
-  "generatedPages": [
-    {
-      "slug": "product-title",
-      "pagePath": "/produtos/product-title.json"
-    }
-  ],
-  "pagePaths": ["/produtos/product-title.json"]
-}
-```
-
-#### Import from Shopify
-**POST** `/api/import/shopify`
-
-Imports products from Shopify and automatically generates product pages.
-
-**Request Body:**
-```json
-{
-  "method": "api",
-  "config": {
-    "shopDomain": "your-shop.myshopify.com",
-    "accessToken": "shpat_your-access-token",
-    "apiVersion": "2023-10"
-  },
-  "options": {
-    "limit": 20,
-    "fields": "id,title,handle,body_html,vendor,variants,images",
-    "published_status": "published"
-  }
-}
-```
-
-**Scraping Example:**
-```json
-{
-  "method": "scraping",
-  "config": {
-    "headless": true,
-    "timeout": 30000
-  },
-  "options": {
-    "url": "https://your-shop.myshopify.com",
-    "productsUrl": "https://your-shop.myshopify.com/collections/all"
-  }
-}
-```
-
-### Product Page Access Endpoints
-
-#### Get Specific Product Page
-**GET** `/produtos/:slug`
-
-Retrieves a specific product page by its slug.
-
-**Example:** `GET /produtos/iphone-14-pro-max`
-
-**Response:**
-```json
-{
-  "id": "shop-123",
-  "title": "iPhone 14 Pro Max",
-  "slug": "iphone-14-pro-max",
-  "description": "Latest iPhone model",
-  "price": "$999.99",
-  "currency": "BRL",
-  "images": ["https://example.com/iphone.jpg"],
-  "vendor": "Apple Store",
-  "variants": [
-    {
-      "id": "1",
-      "title": "128GB",
-      "price": "$999.99",
-      "sku": "IPH14PM128",
-      "available": true
-    }
-  ],
-  "source": "shopify",
-  "createdAt": "2024-01-15T10:30:00.000Z",
-  "metadata": {
-    "imported": true,
-    "importDate": "2024-01-15T10:30:00.000Z"
-  }
-}
-```
-
-#### List All Product Pages
-**GET** `/api/produtos`
-
-Lists all available product pages.
-
-**Response:**
-```json
-{
-  "success": true,
-  "count": 3,
-  "slugs": [
-    "iphone-14-pro-max",
-    "samsung-galaxy-s24",
-    "macbook-pro-16"
-  ]
-}
-```
-
-### Utility Endpoints
-
-#### Health Check
-**GET** `/health`
-
-**Response:**
-```json
-{
-  "status": "OK",
-  "message": "Magic Page Wiz is running!"
-}
-```
-
-#### Get API Examples
-**GET** `/api/import/examples`
-
-Returns detailed examples and documentation for all import methods.
-
-## Import Methods
-
-### API Method
-- **CJ Dropshipping**: Uses official CJ Dropshipping API v2.0
-- **Shopify**: Uses Shopify Admin REST API
-- **Requirements**: Valid API credentials
-- **Benefits**: Fast, reliable, structured data
-
-### Scraping Method (Puppeteer)
-- **Technology**: Puppeteer with headless Chrome
-- **Use Cases**: When API access is not available
-- **Requirements**: Valid product URLs
-- **Benefits**: Can extract data from any product page
-
-### Cheerio Method
-- **Technology**: Server-side jQuery-like HTML parsing
-- **Use Cases**: Lightweight scraping for simple pages
-- **Requirements**: Valid product URLs
-- **Benefits**: Fast, low resource usage
-
-## Generated Page Structure
-
-When products are imported, JSON pages are automatically created in `/public/produtos/` with the following structure:
-
-```json
-{
-  "id": "unique-product-id",
-  "title": "Product Title",
-  "slug": "url-friendly-slug",
-  "description": "Product description",
-  "price": "$19.99",
-  "currency": "BRL",
-  "images": ["https://example.com/image1.jpg"],
-  "vendor": "Store Name",
-  "sku": "PRODUCT-SKU",
-  "tags": ["tag1", "tag2"],
-  "productType": "Electronics",
-  "variants": [
-    {
-      "id": "1",
-      "title": "Default",
-      "price": "$19.99",
-      "sku": "SKU123",
-      "inventory_quantity": 10,
-      "available": true
-    }
-  ],
-  "source": "shopify",
-  "sourceUrl": "https://original-product-url.com",
-  "createdAt": "2024-01-15T10:30:00.000Z",
-  "updatedAt": "2024-01-15T10:30:00.000Z",
-  "metadata": {
-    "imported": true,
-    "importDate": "2024-01-15T10:30:00.000Z",
-    "originalData": { /* Original API/scraped data */ }
-  }
-}
-```
-
-## Local Testing
-
-### 1. Start the Development Server
-```bash
+# Iniciar servidor
 npm run dev
 ```
 
-### 2. Test Health Endpoint
-```bash
-curl http://localhost:3000/health
-```
+### 5. Acesse:
+- **Landing Page:** http://localhost:3000
+- **Construtor:** http://localhost:3000/builder
+- **API:** http://localhost:3000/api
+- **Health Check:** http://localhost:3000/health
 
-### 3. Test Product Import (Mock)
+> 📖 **Guia Detalhado Windows:** Veja [RODAR-LOCALMENTE.md](./RODAR-LOCALMENTE.md) para instruções passo-a-passo.
+
+---
+
+## 🔐 Segurança
+
+- Validação de entrada em todas as APIs
+- Sanitização de dados de produto importados
+- Headers de segurança configurados no Express
+- Logs de acesso e auditoria de operações
+- Proteção contra XSS e CSRF em formulários
+
+---
+
+## 🌐 Multilíngue
+
+- Interface preparada para internacionalização
+- Suporte a múltiplos idiomas via templates
+- Detecção automática de idioma do browser
+- Páginas de produto com metadados multilíngue
+
+---
+
+## 🧩 Funcionalidades Principais
+
+### 🎯 Criação de Landing Pages
+- **Templates Responsivos:** Páginas otimizadas para conversão
+- **Construtor Visual:** Interface drag-and-drop para personalização
+- **Geração Automática:** Criação de páginas a partir de produtos importados
+
+### 📦 Importação de Produtos
+- **CJ Dropshipping:** Integração via API oficial e scraping
+- **Shopify:** Sincronização com lojas Shopify existentes
+- **Múltiplos Métodos:** API, Puppeteer e Cheerio para máxima flexibilidade
+
+### 📊 Gestão de Leads
+- **Formulários Inteligentes:** Captura otimizada de leads
+- **Gestão via JSON:** Sistema simples e eficiente de armazenamento
+- **Exportação de Dados:** Integração fácil com CRMs externos
+
+### 🔄 Automações
+- **Geração Automática:** Páginas criadas automaticamente após importação
+- **Webhooks:** Notificações para sistemas externos
+- **APIs RESTful:** Integração com ferramentas de marketing
+
+---
+
+## 🔄 Integrações Externas
+
+### 🛒 **CJ Dropshipping**
+- Importação via API oficial v2.0
+- Scraping com Puppeteer para produtos específicos
+- Sincronização de preços e estoque
+
+### 🏪 **Shopify**
+- Conexão com Shopify Admin API
+- Importação de catálogos completos
+- Sincronização de metadados de produto
+
+### 📡 **APIs e Webhooks**
+- Endpoints RESTful documentados
+- Webhooks para notificações externas
+- Integração com ferramentas de automação
+
+---
+
+## 📝 Exemplos de Uso
+
+### 🎯 **Fluxo de Captação Básico:**
+1. **Configure as credenciais** nos arquivos `.env`
+2. **Importe produtos** via API CJ Dropshipping ou Shopify
+3. **Gere landing pages** automaticamente para cada produto
+4. **Personalize páginas** usando o construtor visual
+5. **Capture leads** através dos formulários integrados
+
+### 🚀 **Exemplo de Importação CJ Dropshipping:**
 ```bash
 curl -X POST http://localhost:3000/api/import/cj \
   -H "Content-Type: application/json" \
   -d '{
     "method": "api",
-    "config": {},
-    "options": {}
+    "config": {
+      "email": "seu-email@exemplo.com",
+      "password": "sua-senha",
+      "accessToken": "seu-token"
+    },
+    "options": {
+      "page": 1,
+      "limit": 10
+    }
   }'
 ```
 
-### 4. List Generated Products
+### 🏪 **Exemplo de Importação Shopify:**
 ```bash
-curl http://localhost:3000/api/produtos
+curl -X POST http://localhost:3000/api/import/shopify \
+  -H "Content-Type: application/json" \
+  -d '{
+    "method": "api",
+    "config": {
+      "shopDomain": "sua-loja.myshopify.com",
+      "accessToken": "seu-token-shopify"
+    },
+    "options": {
+      "limit": 20
+    }
+  }'
 ```
 
-### 5. Access a Product Page
+---
+
+## 🐳 Docker e Deploy
+
+### 📋 **Docker Compose (Recomendado)**
 ```bash
-curl http://localhost:3000/produtos/product-slug
+# Iniciar todos os serviços
+docker-compose up -d
+
+# Visualizar logs
+docker-compose logs -f
+
+# Parar serviços
+docker-compose down
 ```
 
-### 6. Run Tests
+### 🔧 **Variáveis de Ambiente**
+Configure no arquivo `.env`:
+```env
+# Servidor
+PORT=3000
+NODE_ENV=production
+
+# CJ Dropshipping
+CJ_EMAIL=seu-email@exemplo.com
+CJ_PASSWORD=sua-senha
+CJ_ACCESS_TOKEN=seu-token
+
+# Shopify
+SHOPIFY_SHOP_DOMAIN=sua-loja.myshopify.com
+SHOPIFY_ACCESS_TOKEN=seu-token-shopify
+
+# Puppeteer
+PUPPETEER_HEADLESS=true
+PUPPETEER_SKIP_DOWNLOAD=true
+```
+
+---
+
+## 🖥️ Documentação da API
+
+### 📊 **Endpoints Principais**
+
+#### Health Check
+```
+GET /health
+```
+
+#### Importação de Produtos
+```
+POST /api/import/cj          # CJ Dropshipping
+POST /api/import/shopify     # Shopify
+GET  /api/import/examples    # Exemplos de uso
+```
+
+#### Gestão de Páginas
+```
+GET  /produtos/:slug         # Página específica
+GET  /api/produtos          # Lista todas as páginas
+```
+
+#### Páginas Frontend
+```
+GET  /                      # Página principal
+GET  /builder               # Construtor de páginas
+```
+
+### 📖 **Documentação Detalhada**
+- **Swagger/OpenAPI:** Acesse `/api/docs` quando o servidor estiver rodando
+- **Exemplos:** Endpoint `/api/import/examples` com payloads de exemplo
+- **Testes:** Veja os arquivos em `__tests__/` para exemplos de uso
+
+---
+
+## 🧪 Testes e Qualidade
+
+### ✅ **Executar Testes**
 ```bash
-# Run all tests
+# Todos os testes
 npm test
 
-# Run tests in watch mode
+# Testes em modo watch
 npm run test:watch
 
-# Run specific test file
-npx jest __tests__/page-generator.test.js
+# Teste específico
+npx jest __tests__/api.test.js
 ```
 
-## Error Handling
+### 📊 **Cobertura de Testes**
+- **67 testes** em 4 suítes
+- Cobertura de APIs, serviços e integração
+- Testes end-to-end automatizados
 
-The API provides clear error messages for common scenarios:
+---
 
-### Missing Credentials
-```json
-{
-  "success": false,
-  "error": "CJ Dropshipping API access token is required",
-  "message": "Failed to import products via API"
-}
-```
+## 🚀 Deploy e Produção
 
-### Invalid Method
-```json
-{
-  "success": false,
-  "error": "Invalid method. Use one of: api, scraping, puppeteer, cheerio",
-  "examplePayload": { /* Example request */ }
-}
-```
+### ☁️ **Deploy em Cloud**
+1. **Configure as variáveis de ambiente** no seu provedor
+2. **Use Docker Compose** para orquestração
+3. **Configure reverse proxy** (Nginx/Traefik)
+4. **Monitor logs** e performance
 
-### Scraping Failures
-```json
-{
-  "success": false,
-  "error": "Product URL is required for scraping",
-  "message": "Failed to import products via scraping"
-}
-```
+### 🔒 **Segurança em Produção**
+- Use HTTPS sempre
+- Configure CORS adequadamente
+- Mantenha dependências atualizadas
+- Monitor logs de acesso
 
-### Product Not Found
-```json
-{
-  "success": false,
-  "error": "Product page not found",
-  "message": "Product page 'non-existent-product' not found"
-}
-```
+### 📈 **Monitoramento**
+- Health check endpoint disponível
+- Logs estruturados para análise
+- Métricas de performance da API
 
-## Architecture
+---
 
-### Services
-- **CJDropshippingService**: Handles CJ Dropshipping API and scraping
-- **ShopifyService**: Handles Shopify API and scraping
-- **PageGeneratorService**: Manages automatic page generation and access
+## 💬 Suporte e Contato
 
-### Directory Structure
-```
-magic-page-wiz/
-├── services/
-│   ├── cj-dropshipping.js      # CJ Dropshipping integration
-│   ├── shopify.js              # Shopify integration
-│   └── page-generator.js       # Page generation logic
-├── __tests__/
-│   ├── api.test.js             # API endpoint tests
-│   ├── services.test.js        # Service unit tests
-│   ├── page-generator.test.js  # Page generator tests
-│   └── integration.test.js     # End-to-end tests
-├── public/
-│   ├── produtos/               # Generated product pages
-│   ├── js/                     # Frontend JavaScript
-│   └── css/                    # Stylesheets
-├── server.js                   # Main Express server
-├── package.json                # Dependencies and scripts
-└── README.md                   # This documentation
-```
+### 🐛 **Reportar Bugs**
+Abra uma issue em: https://github.com/luizmann/magic-page-wiz/issues
 
-## Contributing
+### 📚 **Documentação Adicional**
+- [RODAR-LOCALMENTE.md](./RODAR-LOCALMENTE.md) - Guia detalhado Windows
+- [CONFIG_EXAMPLES.md](./CONFIG_EXAMPLES.md) - Exemplos de configuração
+- Testes em `__tests__/` - Exemplos práticos de uso
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass: `npm test`
-6. Submit a pull request
+### 🤝 **Contribuições**
+1. Fork o repositório
+2. Crie uma branch para sua feature
+3. Adicione testes para novas funcionalidades
+4. Execute `npm test` para validar
+5. Submeta um Pull Request
 
-## License
+---
 
-ISC License
-
-## Support
-
-For support and questions:
-- Create an issue on GitHub
-- Check the `/api/import/examples` endpoint for usage examples
-- Review the test files for implementation examples
+**Magic Page Wiz — Landing pages inteligentes para conversão e automação!** 🚀
